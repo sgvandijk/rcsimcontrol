@@ -72,6 +72,16 @@ void SCServer::run()
         }
       }
     }
+    
+    // Signal agent data
+    for (list<SCCCommPtr>::iterator iter = mSCCComms.begin(); iter != mSCCComms.end(); ++iter)
+    {
+      if ((*iter)->newAgentData())
+      {
+        mSignalAgentMessage((*iter)->getCurrentRun()->id, (*iter)->getAgentData());
+      }
+    }
+    
   }
 }
 

@@ -37,13 +37,31 @@ namespace sc
     }
     
     /// Get monitor data
-    std::string getMonData() { return mMonData; }
+    std::string getMonData() const { return mMonData; }
+    
+    bool newAgentData()
+    {
+      bool res = mNewAgentData;
+      mNewAgentData = false;
+      return res;
+    }
+    
+    std::string getAgentData() const { return mAgentData; }
+    
+    boost::shared_ptr<RunDef> getCurrentRun() const { return mCurrentRun; }
+    
   private:
     bool mReady;
+    
+    boost::shared_ptr<RunDef> mCurrentRun;
     
     bool mNewMonData;
     
     std::string mMonData;
+    
+    bool mNewAgentData;
+    
+    std::string mAgentData;
     
     virtual void handleReadMsg(boost::system::error_code const& error, std::size_t bytes_transferred);
   };

@@ -2,18 +2,24 @@
 #define SC_SCSERVER_HH_
 
 #include <boost/asio.hpp>
+#include <boost/signal.hpp>
 #include <list>
 #include "../SCCComm/scccomm.hh"
 #include "../RCMComm/rcmcomm.hh"
 
 namespace sc
 {
+  typedef boost::signal<void(int, std::string const&)> MessageSignal;
+  
   class SCServer
   {
   public:
     SCServer();
     
     void run();
+    
+    /// Add a handler for agent data
+    MessageSignal& getAgentMessageSignal() { return mSignalAgentMessage; }
     
   // Private members
   private:
@@ -34,6 +40,9 @@ namespace sc
     
     /// The client currently supplying monitor data
     SCCCommPtr mMonDataClient;
+    
+    /// Signal agent data
+    MessageSignal mSignalAgentMessage;
     
   private:
     /// Initialize the acception of connections

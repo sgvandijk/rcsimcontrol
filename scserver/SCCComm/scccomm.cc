@@ -14,6 +14,7 @@ SCCComm::SCCComm(boost::asio::io_service& ioservice)
 void SCCComm::sendRun(boost::shared_ptr<RunDef> runDef)
 {
   mReady = false;
+  mCurrentRun = runDef;
   
   MsgType msgType = MT_RUNDEF;
   size_t len = sizeof(msgType);
@@ -63,6 +64,12 @@ void SCCComm::handleReadMsg(boost::system::error_code const& error, size_t bytes
     cout << "(SCCComm::handleReadMsg) Received monitor data" << endl;
     mMonData = msg;
     mNewMonData = true;
+    break;
+  
+  case MT_AGENTDATA:
+    cout << "(SCCComm:handleReadMsg) Received agent data" << endl;
+    mAgentData = msg;
+    mNewAgentData = true;
     break;
     
   default:
