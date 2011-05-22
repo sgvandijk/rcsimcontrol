@@ -17,7 +17,7 @@ namespace sc
       MT_REQMONDATA,  ///< Request for monitor data
       MT_ENDMONDATA,  ///< Request to stop sending monitor data
       MT_MONDATA,     ///< Monitor data
-      MT_AGENTDATA
+      MT_AGENTDATA    ///< Agent data
     };
     
     Comm(boost::asio::io_service& ioservice);
@@ -25,7 +25,7 @@ namespace sc
     /// Connect to server
     void connect(std::string const& host, std::string const& port);
   
-    /// Start asynchronous reading from the server
+    /// Start asynchronous reading
     void startRead();
     
     /// Get pointer to socket

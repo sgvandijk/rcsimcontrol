@@ -8,7 +8,7 @@ int main(int argc, char const** argv)
 {
   if (argc < 3)
   {
-    cout << "Usage: " << argv[0] << " <hostname> <port>" << endl;
+    //cout << "Usage: " << argv[0] << " <hostname> <port>" << endl;
     exit(-1);
   }
   

@@ -43,6 +43,13 @@ void RCSComm::kickOff()
   write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
 }
 
+void RCSComm::requestFullState()
+{
+  string msg("(reqfullstate)");
+  unsigned messageLength = prepareMsg(mOutMsgBuf, msg);
+  write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
+}
+
 double RCSComm::getGameTime()
 {
   return mGameTime;
@@ -70,7 +77,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
       PredicatePtr pmPred = boost::shared_static_cast<Predicate>(pmNode);
       for (Predicate::iterator iter = pmPred->begin(); iter != pmPred->end(); ++iter)
         mPlayModeList.push_back(boost::shared_static_cast<Predicate>(*iter)->getStr());
-      cout << "(RCSComm) Have play modes: " << mPlayModeList.size() << endl;
+      //cout << "(RCSComm) Have play modes: " << mPlayModeList.size() << endl;
     }
   }
   

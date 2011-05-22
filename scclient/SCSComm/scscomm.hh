@@ -37,6 +37,9 @@ namespace sc
     /// Send monitor data to server
     void sendMonData(std::string const& data);
     
+    /// Send agent data to the server
+    void sendAgentData(std::string const& data);
+    
   protected:
     virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
   

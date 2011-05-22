@@ -1,6 +1,8 @@
 #ifndef SC_RUNDEF_HH_
 #define SC_RUNDEF_HH_
 
+#include <boost/smart_ptr.hpp>
+
 namespace sc
 {
   struct AgentDef
@@ -57,6 +59,8 @@ namespace sc
     static RunDef* readFromBuf(char const* buf);
     static int writeToBuf(char* buf, RunDef const* runDef);
   };
+
+  typedef boost::shared_ptr<RunDef> RunDefPtr;
 }
 
 #endif // SC_RUNDEF_HH_

@@ -25,7 +25,7 @@ namespace sc
     std::string getMessage() { return mMessage; }
     
   protected:
-    void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
+    virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
     
   protected:
     bool mNewMessage;

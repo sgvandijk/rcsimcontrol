@@ -18,6 +18,9 @@ namespace sc
     
     void run();
     
+    /// Add a run to the list
+    void addRun(RunDefPtr rundef) { mRuns.push_back(rundef); }
+    
     /// Add a handler for agent data
     MessageSignal& getAgentMessageSignal() { return mSignalAgentMessage; }
     
@@ -40,6 +43,9 @@ namespace sc
     
     /// The client currently supplying monitor data
     SCCCommPtr mMonDataClient;
+    
+    /// List of runs to perform
+    std::list<RunDefPtr> mRuns;
     
     /// Signal agent data
     MessageSignal mSignalAgentMessage;

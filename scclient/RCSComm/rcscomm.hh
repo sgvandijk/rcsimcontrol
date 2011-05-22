@@ -65,6 +65,8 @@ namespace sc
     /// Get latest predicate
     PredicatePtr getPred() { return mPred; }
     
+    void requestFullState();
+    
   protected:
     void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
     

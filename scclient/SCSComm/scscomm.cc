@@ -45,6 +45,16 @@ void SCSComm::sendMonData(string const& data)
   boost::asio::write(mSocket, boost::asio::buffer(data, data.size()));
 }
 
+void SCSComm::sendAgentData(string const& data)
+{
+  MsgType msgType = MT_AGENTDATA;
+  size_t len = sizeof(msgType) + data.size();
+  size_t len2 = htonl(len);
+  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&len2), 4));
+  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&msgType), sizeof(msgType)));
+  boost::asio::write(mSocket, boost::asio::buffer(data, data.size()));
+}
+
 void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes_transferred)
 {
   if (error)
@@ -60,7 +70,6 @@ void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
     break;
     
   case MT_REQMONDATA:
-    cout << "(SCSComm::handleReadMsg) Monitor data requested"<< endl;
     mMonDataRequested = mNewMonDataRequest = true;
     break;
     

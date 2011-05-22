@@ -75,12 +75,13 @@ void Process::spawn()
     // Redirect all output (to /dev/null for now)
     int fd;
 
+/*
     fd = open("/dev/null", O_RDWR);
 
     dup2(fd,STDOUT_FILENO);
     dup2(fd,STDERR_FILENO);
     close(fd);
-
+*/
     // Execute (p version of exec search for filename in PATH)
     execvp(mFileName.c_str(), args);
     cerr << "ERROR: spawning " << args[0] << " failed!" << endl;

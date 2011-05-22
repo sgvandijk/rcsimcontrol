@@ -1,4 +1,5 @@
 #include "agentcomm.hh"
+#include <iostream>
 
 using namespace sc;
 using namespace std;
@@ -15,4 +16,6 @@ void AgentComm::handleReadMsg(const boost::system::error_code& error, size_t byt
 {
   mNewMessage = true;
   mMessage = mInMsgBuf;
+  //cout << "(AgentComm::handeReadMsg) Got agent data: " << mMessage << endl;
+  startRead();
 }

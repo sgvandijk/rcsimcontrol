@@ -56,18 +56,18 @@ void SCCComm::handleReadMsg(boost::system::error_code const& error, size_t bytes
   switch (msgType)
   {
   case MT_READY:
-    cout << "(SCCComm::handleReadMsg) Received ready" << endl;
+    //cout << "(SCCComm::handleReadMsg) Received ready" << endl;
     mReady = true;
     break;
   
   case MT_MONDATA:
-    cout << "(SCCComm::handleReadMsg) Received monitor data" << endl;
+    //cout << "(SCCComm::handleReadMsg) Received monitor data" << endl;
     mMonData = msg;
     mNewMonData = true;
     break;
   
   case MT_AGENTDATA:
-    cout << "(SCCComm:handleReadMsg) Received agent data" << endl;
+    //cout << "(SCCComm:handleReadMsg) Received agent data" << endl;
     mAgentData = msg;
     mNewAgentData = true;
     break;

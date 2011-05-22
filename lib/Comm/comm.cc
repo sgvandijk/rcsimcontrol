@@ -35,7 +35,7 @@ void Comm::connect(std::string const& host, std::string const& port)
 
 void Comm::startRead()
 {
-  cout << "(Comm::startRead)" << endl;
+  //cout << "(Comm::startRead)" << endl;
   async_read(mSocket, boost::asio::buffer(mPrefBuf, 4), boost::bind(&Comm::handleReadPref, this, boost::asio::placeholders::error));
 }
 
@@ -60,12 +60,12 @@ void Comm::handleReadPref(boost::system::error_code const& error)
   size_t messageLength;
   memcpy(reinterpret_cast<char*>(&messageLength), mPrefBuf, 4);
   messageLength = ntohl(messageLength);
-  cout << "(Comm::handleReadPref) pref: " << messageLength << endl;
+  //cout << "(Comm::handleReadPref) pref: " << messageLength << endl;
   
   boost::asio::socket_base::bytes_readable command(true);
   mSocket.io_control(command);
   std::size_t bytes_readable = command.get();
-  cout << "(Comm::handleReadPref) bytes readable: " << bytes_readable << endl;
+  //cout << "(Comm::handleReadPref) bytes readable: " << bytes_readable << endl;
 
   memset(mInMsgBuf, 0, 102400);
   async_read(mSocket, boost::asio::buffer(mInMsgBuf, messageLength), boost::bind(&Comm::handleReadMsg, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));

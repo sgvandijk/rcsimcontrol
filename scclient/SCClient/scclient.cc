@@ -32,7 +32,7 @@ void SCClient::run()
     
     if (mSCSComm.hasNewRun())
     {
-      cout << "(SCClient::run) new run" << endl;
+      //cout << "(SCClient::run) new run" << endl;
       doRun(mSCSComm.getRun());
       mSCSComm.signalReady();
     }
@@ -42,14 +42,14 @@ void SCClient::run()
 
 void SCClient::connectToSCS()
 {
-  cout << "Connecting to SimControl Server on " << mSCSHost << ":" << mSCSPort << "..." << endl;
+  //cout << "Connecting to SimControl Server on " << mSCSHost << ":" << mSCSPort << "..." << endl;
   mSCSComm.connect(mSCSHost, mSCSPort);
-  cout << "Success!" << endl;
+  //cout << "Success!" << endl;
 }
 
 void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 {
-  cout << "Starting run " << runDef->id << endl;
+  //cout << "Starting run " << runDef->id << endl;
 
   // Spawn simulator
   spawnSim();
@@ -59,12 +59,14 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   initAcceptors();
   startAgentAccept();
   
+  boost::system::error_code ec;
+
   // Spawn agents
   for (int i = 0; i < runDef->nAgents; ++i)
   {
     spawnAgent(runDef->agents[i]);
     // Sleep until agent is started (TODO: use better (boost) timer);
-    cout << "Sleeping " << runDef->agents[i].startupTime << "s" << endl;
+    //cout << "Sleeping " << runDef->agents[i].startupTime << "s" << endl;
     sleep(runDef->agents[i].startupTime);
   }
 
@@ -73,24 +75,26 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   rcscomm.connect();
   rcscomm.startRead();
 
-  boost::system::error_code ec;
   bool running = true;
   while (running)
   {
-    // Update asio to read messages from simulator
+    // Update asio to read messages from simulator, agent and SimControl Server
     mIOService.run_one(ec);
     if (ec)
       cout << "(SCClient::doRun) Error doing cycle: " << ec << endl;
-    cout << "t/pm: " << rcscomm.getGameTime() << "/" << rcscomm.getPlayMode() << endl;
+    //cout << "t/pm: " << rcscomm.getGameTime() << "/" << rcscomm.getPlayMode() << endl;
     
+    // Check if a new predicate arrived from the simulator
     if (rcscomm.newPred())
     {
       switch(rcscomm.getPlayMode())
       {
+      // Do the kickoff
       case RCSComm::PM_BEFORE_KICKOFF:
         rcscomm.kickOff();
         break;
       
+      // Game over
       case RCSComm::PM_GAME_OVER:
         running = false;
         break;
@@ -99,8 +103,25 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
         break;
       }
       
-      if (mSCSComm.monDataRequested())
-        mSCSComm.sendMonData(rcscomm.getPred()->toString());
+      // If we just got a new request to pass monitor info to the server
+      // request a new full state frame from the simulator
+      if (mSCSComm.newMonDataRequest())
+        rcscomm.requestFullState();
+      else
+        // Send on monitordata
+        if (mSCSComm.monDataRequested())
+          mSCSComm.sendMonData(rcscomm.getPred()->toString());
+    }
+    
+    //Forward any agent data to the Sim Control Server
+    for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+    {
+      AgentCommPtr ac = *iter;
+      if (ac->newMessage())
+      {
+        string msg = ac->getMessage();
+        mSCSComm.sendAgentData(msg);
+      }
     }
   }
   
@@ -113,7 +134,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 
 void SCClient::spawnSim()
 {
-  cout << "Spawning RCSSServer3d..." << endl;
+  //cout << "Spawning RCSSServer3d..." << endl;
   if (!mSimProc)
     mSimProc = ProcessPtr(new Process("rcssserver3d"));
     
@@ -136,7 +157,7 @@ void SCClient::forceKillSim()
 
 void SCClient::spawnAgent(AgentDef const& agentDef)
 {
-  cout << "Spawning agent.." << endl;
+  //cout << "Spawning agent.." << endl;
   
   vector<string> args;
   for (int i = 0; i < agentDef.nArgs; ++i)
@@ -157,14 +178,14 @@ void SCClient::initAcceptors()
 
 void SCClient::startAgentAccept()
 {
-  cout << "Starting Agent accept.." << endl;
+  //cout << "Starting Agent accept.." << endl;
   AgentCommPtr newComm = AgentCommPtr(new AgentComm(mIOService));
   mAgentAcceptor.async_accept(*newComm->getSocket(), boost::bind(&SCClient::handleAgentAccept, this, boost::asio::placeholders::error, newComm));
 }
 
 void SCClient::handleAgentAccept(boost::system::error_code const& error, AgentCommPtr comm)
 {
-  cout << "Connection accepted!" << endl;
+  //cout << "Connection accepted!" << endl;
   if (error)
     cout << "But error: " << error << endl;
   
