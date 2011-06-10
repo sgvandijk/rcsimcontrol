@@ -66,6 +66,16 @@ void SCServer::run()
   }
 }
 
+void SCServer::sendMessageToAgents(int runId, string const& msg)
+{
+  for (list<SCCCommPtr>::iterator iter = mSCCComms.begin(); iter != mSCCComms.end(); ++iter)
+  {
+    SCCCommPtr scccomm = *iter;
+    if (scccomm->getCurrentRun()->id == runId)
+      scccomm->sendMessageToAgents(msg);
+  }
+}
+
 void SCServer::initAcceptors()
 {
   tcp::endpoint sccendpoint(tcp::v4(), 15123);

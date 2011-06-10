@@ -17,7 +17,8 @@ namespace sc
       MT_REQMONDATA,  ///< Request for monitor data
       MT_ENDMONDATA,  ///< Request to stop sending monitor data
       MT_MONDATA,     ///< Monitor data
-      MT_AGENTDATA    ///< Agent data
+      MT_AGENTDATA,   ///< Data received from agent
+      MT_AGENTMESSAGE ///< Message sent to agent
     };
     
     Comm(boost::asio::io_service& ioservice);

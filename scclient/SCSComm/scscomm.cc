@@ -59,9 +59,10 @@ void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
 {
   if (error)
     cout << "(SCSComm::handleReadMsg) Error reading message: " << error << endl;
-    
+  
   mInMsgBuf[bytes_transferred] = 0;
   MsgType msgType = *reinterpret_cast<MsgType*>(mInMsgBuf);
+
   switch (msgType)
   {
   case MT_RUNDEF:
@@ -76,7 +77,12 @@ void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   case MT_ENDMONDATA:
     mMonDataRequested = false;
     break;
-    
+  
+  case MT_AGENTMESSAGE:
+    mNewAgentMessage = true;
+    mAgentMessage = string(mInMsgBuf + sizeof(msgType));
+    break;
+
   default:
     cout << "(SCSComm::handleReadMsg) Unexpected message type: " << msgType << endl;
   }

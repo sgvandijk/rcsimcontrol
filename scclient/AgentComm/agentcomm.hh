@@ -13,23 +13,26 @@ namespace sc
   public:
     AgentComm(boost::asio::io_service& ioservice);
     
-    /// Whether there is a new message
-    bool newMessage()
+    /// Whether there is new data
+    bool newData()
     {
-      bool res = mNewMessage;
-      mNewMessage = false;
+      bool res = mNewData;
+      mNewData = false;
       return res;
     }
     
-    /// Get latest message
-    std::string getMessage() { return mMessage; }
+    /// Get latest data
+    std::string getData() { return mData; }
+    
+    /// Send agent message
+    void sendMessage(std::string const& msg);
     
   protected:
     virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
     
   protected:
-    bool mNewMessage;
-    std::string mMessage;
+    bool mNewData;
+    std::string mData;
   };
   
   typedef boost::shared_ptr<AgentComm> AgentCommPtr;

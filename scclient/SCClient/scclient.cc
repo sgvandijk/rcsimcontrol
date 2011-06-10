@@ -117,11 +117,19 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
     {
       AgentCommPtr ac = *iter;
-      if (ac->newMessage())
+      if (ac->newData())
       {
-        string msg = ac->getMessage();
-        mSCSComm.sendAgentData(msg);
+        string data = ac->getData();
+        mSCSComm.sendAgentData(data);
       }
+    }
+    
+    // Forward agent message to agents
+    if (mSCSComm.newAgentMessageReceived())
+    {
+      string msg = mSCSComm.getAgentMessage();
+      for (list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+        (*iter)->sendMessage(msg);
     }
   }
   

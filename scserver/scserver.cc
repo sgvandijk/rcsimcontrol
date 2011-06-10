@@ -4,13 +4,19 @@
 using namespace sc;
 using namespace std;
 
+SCServer scserver;
+int cnt;
+
 void handleAgentData(int runId, std::string const& data)
 {
   cout << "Agent data: " << data << endl;
+  if (++cnt % 20 == 0)
+    scserver.sendMessageToAgents(1, "Cheerio chap!");
 }
 
 int main()
 {
+  cnt = 0;
   // Make dummy run
   boost::shared_ptr<RunDef> r1(new RunDef());
   r1->id = 1;
@@ -18,7 +24,7 @@ int main()
   r1->nAgents = 6;
   r1->agents = new AgentDef[6];
   
-  for (unsigned a = 0; a < 6; ++a)
+  for (unsigned a = 0; a < 1; ++a)
   {
     string binary("./boldagent");
     string workDir("/home/sander/src/boldagent.simcontrol");
@@ -36,7 +42,6 @@ int main()
     memcpy(r1->agents[a].args[1], unum.str().c_str(), unum.str().size());
   }
 
-  SCServer scserver;
   scserver.addRun(r1);
   scserver.getAgentMessageSignal().connect(handleAgentData);
   

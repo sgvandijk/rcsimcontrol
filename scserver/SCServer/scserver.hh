@@ -21,8 +21,12 @@ namespace sc
     /// Add a run to the list
     void addRun(RunDefPtr rundef) { mRuns.push_back(rundef); }
     
+    /// Send a message to all agents in a certain run
+    void sendMessageToAgents(int runId, std::string const& msg);
+
     /// Add a handler for agent data
     MessageSignal& getAgentMessageSignal() { return mSignalAgentMessage; }
+    
     
   // Private members
   private:

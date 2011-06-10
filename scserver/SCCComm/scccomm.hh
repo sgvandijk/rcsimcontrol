@@ -39,6 +39,7 @@ namespace sc
     /// Get monitor data
     std::string getMonData() const { return mMonData; }
     
+    /// Whether there is new agent data
     bool newAgentData()
     {
       bool res = mNewAgentData;
@@ -46,8 +47,13 @@ namespace sc
       return res;
     }
     
+    /// Get the last agent data received
     std::string getAgentData() const { return mAgentData; }
     
+    /// Send a message to all agents
+    void sendMessageToAgents(std::string const& msg);
+    
+    /// Get the description of the current run being performed
     boost::shared_ptr<RunDef> getCurrentRun() const { return mCurrentRun; }
     
   private:

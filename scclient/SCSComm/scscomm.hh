@@ -40,6 +40,20 @@ namespace sc
     /// Send agent data to the server
     void sendAgentData(std::string const& data);
     
+    /// Whether the server sent a message for the agents
+    bool newAgentMessageReceived()
+    {
+      bool res = mNewAgentMessage;
+      mNewAgentMessage = false;
+      return res;
+    }
+    
+    /// Get agent message
+    std::string getAgentMessage() const
+    {
+      return mAgentMessage;
+    }
+    
   protected:
     virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
   
@@ -50,7 +64,11 @@ namespace sc
     
     bool mNewMonDataRequest;
     
+    bool mNewAgentMessage;
+    
     boost::shared_ptr<RunDef> mRunDef;
+    
+    std::string mAgentMessage;
   };
 }
 

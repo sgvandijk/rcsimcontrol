@@ -6,20 +6,35 @@
 
 namespace sc
 {
-  /** SimControl Server Communication module
+  /** Agent Data Communication module
    */
   class AgentDataComm : public Comm
   {
   public:
     AgentDataComm(boost::asio::io_service& ioservice);
     
+    /// Connect to SimControl client
+    void connect();
+
     /// Send agent data to SimControl client
     void sendData(std::string const& data);
     
-    void connect();
+    /// Whether SimControl Server sent a new message
+    bool newMessage()
+    {
+      bool res = mNewMessage;
+      mNewMessage = false;
+      return res;
+    }
+    
+    std::string getMessage() const { return mMessage; }
     
   protected:
-    void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred) {}
+    bool mNewMessage;
+    
+    std::string mMessage;
+    
+    void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
   };
 }
 
