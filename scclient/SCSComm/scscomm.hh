@@ -21,7 +21,7 @@ namespace sc
     boost::shared_ptr<RunDef> getRun();
     
     /// Signal to SimControl Server that client is ready for a new run
-    void signalReady();
+    bool signalReady();
     
     /// Whether the server requested monitor data
     bool monDataRequested() const { return mMonDataRequested; }
@@ -35,10 +35,10 @@ namespace sc
     }
     
     /// Send monitor data to server
-    void sendMonData(std::string const& data);
+    bool sendMonData(std::string const& data);
     
     /// Send agent data to the server
-    void sendAgentData(std::string const& data);
+    bool sendAgentData(std::string const& data);
     
     /// Whether the server sent a message for the agents
     bool newAgentMessageReceived()

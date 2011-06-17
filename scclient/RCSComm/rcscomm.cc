@@ -40,14 +40,28 @@ void RCSComm::kickOff()
 {
   string msg("(kickOff Left)");
   unsigned messageLength = prepareMsg(mOutMsgBuf, msg);
-  write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
+  try
+  {
+    write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
+  }
+  catch(boost::system::system_error error)
+  {
+    mConnected = false;
+  }
 }
 
 void RCSComm::requestFullState()
 {
   string msg("(reqfullstate)");
   unsigned messageLength = prepareMsg(mOutMsgBuf, msg);
-  write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
+  try
+  {
+    write(mSocket, boost::asio::buffer(mOutMsgBuf, messageLength));
+  }
+  catch(boost::system::system_error error)
+  {
+    mConnected = false;
+  }
 }
 
 double RCSComm::getGameTime()
@@ -62,6 +76,12 @@ RCSComm::PlayMode RCSComm::getPlayMode()
 
 void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes_transferred)
 {
+  if (error)
+  {
+    mConnected = false;
+    return;
+  }
+  
   mParser.reset();
   mParser.parse('(');
   mParser.parse(mInMsgBuf, bytes_transferred);

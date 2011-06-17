@@ -25,7 +25,7 @@ namespace sc
     std::string getData() { return mData; }
     
     /// Send agent message
-    void sendMessage(std::string const& msg);
+    bool sendMessage(std::string const& msg);
     
   protected:
     virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);

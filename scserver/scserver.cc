@@ -1,5 +1,6 @@
 #include "SCServer/scserver.hh"
 #include <iostream>
+#include <sstream>
 
 using namespace sc;
 using namespace std;
@@ -9,22 +10,30 @@ int cnt;
 
 void handleAgentData(int runId, std::string const& data)
 {
-  cout << "Agent data: " << data << endl;
-  if (++cnt % 20 == 0)
-    scserver.sendMessageToAgents(1, "Cheerio chap!");
+  cnt++;
+  cout << cnt << " Agent data: " << data << endl;
+  if (cnt % 20 == 0)
+  {
+    ostringstream out;
+    out << "Cheerio chap! " << cnt;
+    scserver.sendMessageToAgents(1, out.str());
+    cout << "Sent: " << out.str() << endl;
+  }
 }
 
 int main()
 {
   cnt = 0;
   // Make dummy run
+  unsigned nAgents = 1;
   boost::shared_ptr<RunDef> r1(new RunDef());
   r1->id = 1;
-  r1->termCond = RunDef::TC_FULLGAME;
-  r1->nAgents = 6;
-  r1->agents = new AgentDef[6];
+  r1->termCond = RunDef::TC_TIMED;
+  r1->termTime = 20;
+  r1->nAgents = nAgents;
+  r1->agents = new AgentDef[nAgents];
   
-  for (unsigned a = 0; a < 1; ++a)
+  for (unsigned a = 0; a < nAgents; ++a)
   {
     string binary("./boldagent");
     string workDir("/home/sander/src/boldagent.simcontrol");

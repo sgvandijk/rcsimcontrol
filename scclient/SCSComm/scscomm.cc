@@ -26,39 +26,28 @@ boost::shared_ptr<RunDef> SCSComm::getRun()
   return mRunDef;
 }
 
-void SCSComm::signalReady()
+bool SCSComm::signalReady()
 {
-  MsgType msgType = MT_READY;
-  size_t len = sizeof(msgType);
-  size_t len2 = htonl(len);
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&len2), 4));
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&msgType), sizeof(msgType)));
+  sendMsg(MT_READY);
 }
 
-void SCSComm::sendMonData(string const& data)
+bool SCSComm::sendMonData(string const& data)
 {
-  MsgType msgType = MT_MONDATA;
-  size_t len = sizeof(msgType) + data.size();
-  size_t len2 = htonl(len);
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&len2), 4));
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&msgType), sizeof(msgType)));
-  boost::asio::write(mSocket, boost::asio::buffer(data, data.size()));
+  sendMsg(MT_MONDATA, data);
 }
 
-void SCSComm::sendAgentData(string const& data)
+bool SCSComm::sendAgentData(string const& data)
 {
-  MsgType msgType = MT_AGENTDATA;
-  size_t len = sizeof(msgType) + data.size();
-  size_t len2 = htonl(len);
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&len2), 4));
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&msgType), sizeof(msgType)));
-  boost::asio::write(mSocket, boost::asio::buffer(data, data.size()));
+  sendMsg(MT_AGENTDATA, data);
 }
 
 void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes_transferred)
 {
   if (error)
-    cout << "(SCSComm::handleReadMsg) Error reading message: " << error << endl;
+  {
+    mConnected = false;
+    return;
+  }
   
   mInMsgBuf[bytes_transferred] = 0;
   MsgType msgType = *reinterpret_cast<MsgType*>(mInMsgBuf);

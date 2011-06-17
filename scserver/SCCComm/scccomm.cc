@@ -46,12 +46,7 @@ void SCCComm::endMonData()
 
 void SCCComm::sendMessageToAgents(string const& msg)
 {
-  MsgType msgType = MT_AGENTMESSAGE;
-  size_t len = sizeof(msgType) + msg.size();
-  size_t len2 = htonl(len);
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<char*>(&len2), 4));
-  boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<char*>(&msgType), sizeof(msgType)));
-  boost::asio::write(mSocket, boost::asio::buffer(msg, msg.size()));
+  sendMsg(MT_AGENTMESSAGE, msg);
 }
 
 void SCCComm::handleReadMsg(boost::system::error_code const& error, size_t bytes_transferred)

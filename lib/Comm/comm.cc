@@ -31,11 +31,12 @@ void Comm::connect(std::string const& host, std::string const& port)
   // None worked
   if (error)
     throw boost::system::system_error(error);  
+    
+  mConnected = true;
 }
 
 void Comm::startRead()
 {
-  //cout << "(Comm::startRead)" << endl;
   async_read(mSocket, boost::asio::buffer(mPrefBuf, 4), boost::bind(&Comm::handleReadPref, this, boost::asio::placeholders::error));
 }
 
@@ -53,20 +54,66 @@ void Comm::handleReadPref(boost::system::error_code const& error)
   // Error occured, probably connection broken
   if (error)
   {
-    cout << "(Comm::handleReadPref) Error reading prefix: " << error << endl;
+    mConnected = false;
     return;
   }
     
   size_t messageLength;
   memcpy(reinterpret_cast<char*>(&messageLength), mPrefBuf, 4);
   messageLength = ntohl(messageLength);
-  cout << "(Comm::handleReadPref) pref: " << messageLength << endl;
   
   boost::asio::socket_base::bytes_readable command(true);
   mSocket.io_control(command);
   std::size_t bytes_readable = command.get();
-  cout << "(Comm::handleReadPref) bytes readable: " << bytes_readable << endl;
 
   memset(mInMsgBuf, 0, 102400);
   async_read(mSocket, boost::asio::buffer(mInMsgBuf, messageLength), boost::bind(&Comm::handleReadMsg, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+}
+
+bool Comm::sendMsg(MsgType type)
+{
+  size_t len = sizeof(type);
+  size_t pref = htonl(len);
+  size_t bufLen = len + 4;
+    
+  char* cursor = mOutMsgBuf;
+  memcpy(cursor, reinterpret_cast<char*>(&pref), 4);
+  cursor += 4;
+  memcpy(cursor, reinterpret_cast<char*>(&type), sizeof(type));
+  
+  try
+  {
+    boost::asio::write(mSocket, boost::asio::buffer(mOutMsgBuf, bufLen));
+  }
+  catch(boost::system::system_error error)
+  {
+    mConnected = false;
+  }
+  
+  return mConnected;
+}
+
+bool Comm::sendMsg(MsgType type, string const& msg)
+{
+  size_t len = sizeof(type) + msg.size();
+  size_t pref = htonl(len);
+  size_t bufLen = len + 4;//sizeof(pref);
+  
+  char* cursor = mOutMsgBuf;
+  memcpy(cursor, reinterpret_cast<char*>(&pref), 4);
+  cursor += 4;
+  memcpy(cursor, reinterpret_cast<char*>(&type), sizeof(type));
+  cursor += sizeof(type);
+  memcpy(cursor, msg.c_str(), msg.size());
+  
+  try
+  {
+    boost::asio::write(mSocket, boost::asio::buffer(mOutMsgBuf, bufLen));
+  }
+  catch(boost::system::system_error error)
+  {
+    mConnected = false;
+  }
+  
+  return mConnected;
 }

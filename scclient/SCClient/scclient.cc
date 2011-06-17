@@ -103,6 +103,10 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
         break;
       }
       
+      // Check if time ran out if we are running in timed mode
+      if (runDef->termCond == RunDef::TC_TIMED && rcscomm.getGameTime() > runDef->termTime)
+        running = false;
+      
       // If we just got a new request to pass monitor info to the server
       // request a new full state frame from the simulator
       if (mSCSComm.newMonDataRequest())

@@ -32,6 +32,9 @@ namespace sc
     /// Get pointer to socket
     boost::asio::ip::tcp::socket* getSocket() { return &mSocket; }
     
+    /// Get (an estimate) whether this Comm module is connected
+    bool isConnected();
+    
   protected:
     /** Prepare message to be sent
      * Prefixes with message length
@@ -43,8 +46,15 @@ namespace sc
     
     virtual void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred) = 0;
     
+    /// Send an empty message of type @type
+    bool sendMsg(MsgType type);
+    
+    /// Send a message
+    bool sendMsg(MsgType type, std::string const& msg);
+    
   protected:
     boost::asio::ip::tcp::socket mSocket;
+    bool mConnected;
   
     char     mPrefBuf[4];
     char     mInMsgBuf[102400];

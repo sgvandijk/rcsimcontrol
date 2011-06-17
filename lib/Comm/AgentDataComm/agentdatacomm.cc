@@ -30,20 +30,25 @@ void AgentDataComm::handleReadMsg(const boost::system::error_code& error, size_t
   if (error)
     cout << "(AgentDataComm::handleReadMsg) Error reading message: " << error << endl;
   
+  union {
+    MsgType type;
+    char chars[sizeof(MsgType)];
+  } u;
+  
   mInMsgBuf[bytes_transferred] = 0;
-  MsgType msgType = *reinterpret_cast<MsgType*>(mInMsgBuf);
+  memcpy(u.chars, mInMsgBuf, sizeof(MsgType));
 
-  cout << "(AgentDataComm::handleReadMsg) Got something of type: " << msgType << endl;
+  cout << "(AgentDataComm::handleReadMsg) Got something of type: " << u.type << endl;
 
-  switch (msgType)
+  switch (u.type)
   {
   case MT_AGENTMESSAGE:
     mNewMessage = true;
-    mMessage = string(mInMsgBuf + sizeof(msgType));
+    mMessage = string(mInMsgBuf + sizeof(MsgType));
     break;
 
   default:
-    cout << "(AgentDataComm::handleReadMsg) Unexpected message type: " << msgType << ", bytes transfered: " << bytes_transferred << endl;
+    cout << "(AgentDataComm::handleReadMsg) Unexpected message type: " << u.type << ", bytes transfered: " << bytes_transferred << endl << mInMsgBuf << endl;
   }
   startRead();
 }
