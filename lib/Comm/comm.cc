@@ -7,8 +7,14 @@ using namespace std;
 using boost::asio::ip::tcp;
 
 Comm::Comm(boost::asio::io_service& ioservice)
-: mSocket(ioservice)
+: mSocket(ioservice),
+  mConnected(false)
 {
+}
+
+Comm::~Comm()
+{
+  shutdown();
 }
 
 void Comm::connect(std::string const& host, std::string const& port)
@@ -17,7 +23,7 @@ void Comm::connect(std::string const& host, std::string const& port)
   tcp::resolver resolver(mSocket.get_io_service());
   tcp::resolver::query query(host, port);
   
-  // Can return IPV4 and IPV6 enpoints
+  // Can return IPV4 and IPV6 endpoints
   // Loop through all until one is found that worked
   tcp::resolver::iterator endpointIter = resolver.resolve(query);
   tcp::resolver::iterator end;
@@ -33,6 +39,15 @@ void Comm::connect(std::string const& host, std::string const& port)
     throw boost::system::system_error(error);  
     
   mConnected = true;
+}
+
+void Comm::shutdown()
+{
+  if (mSocket.is_open())
+  {
+    mSocket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+    mSocket.close();
+  }
 }
 
 void Comm::startRead()

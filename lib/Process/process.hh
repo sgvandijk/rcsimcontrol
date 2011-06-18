@@ -16,8 +16,10 @@ namespace sc
     Process(std::string const& fileName, std::vector<std::string> const& args);
     Process(std::string const& fileName, std::string const& workDir, std::vector<std::string> const& args);
     
+    /// Spawn this process
     void spawn();
     
+    /// Kill this process forcefully
     void forceKill();
     
   private:

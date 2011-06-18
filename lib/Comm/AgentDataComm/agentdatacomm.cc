@@ -6,7 +6,8 @@ using namespace std;
 using boost::asio::ip::tcp;
 
 AgentDataComm::AgentDataComm(boost::asio::io_service& ioservice)
-: Comm(ioservice)
+: Comm(ioservice),
+  mNewMessage(false)
 {
 }
 
@@ -28,6 +29,17 @@ void AgentDataComm::sendData(string const& data)
 void AgentDataComm::handleReadMsg(const boost::system::error_code& error, size_t bytes_transferred)
 {
   if (error)
+  {
+    mConnected = false;
+    cout << "(AgentDataComm::handleReadMessage) Error: " << error << endl;
+    return;
+  }
+  
+  mInMsgBuf[bytes_transferred] = 0;
+  MsgType msgType = *reinterpret_cast<MsgType*>(mInMsgBuf);
+
+/*  
+  if (error)
     cout << "(AgentDataComm::handleReadMsg) Error reading message: " << error << endl;
   
   union {
@@ -39,8 +51,10 @@ void AgentDataComm::handleReadMsg(const boost::system::error_code& error, size_t
   memcpy(u.chars, mInMsgBuf, sizeof(MsgType));
 
   cout << "(AgentDataComm::handleReadMsg) Got something of type: " << u.type << endl;
+*/
+  cout << "(AgentDataComm::handleReadMsg) Got something of type: " << msgType << endl;
 
-  switch (u.type)
+  switch (msgType)
   {
   case MT_AGENTMESSAGE:
     mNewMessage = true;
@@ -48,7 +62,7 @@ void AgentDataComm::handleReadMsg(const boost::system::error_code& error, size_t
     break;
 
   default:
-    cout << "(AgentDataComm::handleReadMsg) Unexpected message type: " << u.type << ", bytes transfered: " << bytes_transferred << endl << mInMsgBuf << endl;
+    cout << "(AgentDataComm::handleReadMsg) Unexpected message type: " << msgType << ", bytes transfered: " << bytes_transferred << endl << (mInMsgBuf + sizeof(MsgType)) << endl;
   }
   startRead();
 }

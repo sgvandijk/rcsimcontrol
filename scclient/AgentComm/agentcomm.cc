@@ -28,6 +28,8 @@ void AgentComm::handleReadMsg(const boost::system::error_code& error, size_t byt
 
 bool AgentComm::sendMessage(string const& msg)
 {
+  cout << "(AgentComm::sendMessage) Sending to agent: " << msg << endl;
+  
   bool success = sendMsg(MT_AGENTMESSAGE, msg);
   if (!success)
     mConnected = false;

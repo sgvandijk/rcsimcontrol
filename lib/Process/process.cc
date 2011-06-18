@@ -7,6 +7,7 @@
 #include <cstring>
 #include <iostream>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 using namespace sc;
 using namespace std;
@@ -82,7 +83,7 @@ void Process::spawn()
     dup2(fd,STDERR_FILENO);
     close(fd);
 */
-    // Execute (p version of exec search for filename in PATH)
+    // Execute (p version of exec searches for filename in PATH)
     execvp(mFileName.c_str(), args);
     cerr << "ERROR: spawning " << args[0] << " failed!" << endl;
     exit(-1);
@@ -93,7 +94,11 @@ void Process::forceKill()
 {
   if (mPID)
   {
+    // Kill
     kill(mPID, SIGKILL);
+    // Reap
+    waitpid(mPID, 0, 0);
+
     mPID = 0;
   }
 }

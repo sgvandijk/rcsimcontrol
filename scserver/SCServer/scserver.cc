@@ -80,11 +80,13 @@ void SCServer::initAcceptors()
 {
   tcp::endpoint sccendpoint(tcp::v4(), 15123);
   mSCCAcceptor.open(sccendpoint.protocol());
+  mSCCAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mSCCAcceptor.bind(sccendpoint);
   mSCCAcceptor.listen();
 
   tcp::endpoint rcmendpoint(tcp::v4(), 3201);
   mRCMAcceptor.open(rcmendpoint.protocol());
+  mRCMAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mRCMAcceptor.bind(rcmendpoint);
   mRCMAcceptor.listen();
 }

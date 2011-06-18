@@ -70,6 +70,7 @@ void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   case MT_AGENTMESSAGE:
     mNewAgentMessage = true;
     mAgentMessage = string(mInMsgBuf + sizeof(msgType));
+    cout << "(SCSComm::handleReadMsg) Agent message: " << mAgentMessage << endl;
     break;
 
   default:

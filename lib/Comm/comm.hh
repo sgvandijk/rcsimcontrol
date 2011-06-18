@@ -23,9 +23,14 @@ namespace sc
     
     Comm(boost::asio::io_service& ioservice);
     
+    virtual ~Comm();
+    
     /// Connect to server
     void connect(std::string const& host, std::string const& port);
   
+    /// Shutdown socket
+    void shutdown();
+    
     /// Start asynchronous reading
     void startRead();
     
@@ -33,7 +38,7 @@ namespace sc
     boost::asio::ip::tcp::socket* getSocket() { return &mSocket; }
     
     /// Get (an estimate) whether this Comm module is connected
-    bool isConnected();
+    bool isConnected() const { return mConnected; }
     
   protected:
     /** Prepare message to be sent

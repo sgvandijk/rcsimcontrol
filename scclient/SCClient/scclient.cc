@@ -22,22 +22,24 @@ void SCClient::run()
 {
   // Connect to SimControl Server and start async reading from it
   connectToSCS();
-  mSCSComm.signalReady();
   mSCSComm.startRead();
   
-  while (true)
+  while (mSCSComm.isConnected())
   {
-    // Update asio to read messages from SimControl Server
-    mIOService.run_one();
-    
-    if (mSCSComm.hasNewRun())
+    mSCSComm.signalReady();
+    bool doneRun = false;
+    while (!doneRun)
     {
-      //cout << "(SCClient::run) new run" << endl;
-      doRun(mSCSComm.getRun());
-      mSCSComm.signalReady();
+      // Update asio to read messages from SimControl Server
+      mIOService.run_one();
+      
+      if (mSCSComm.hasNewRun())
+      {
+        doRun(mSCSComm.getRun());
+        doneRun = true;
+      }
     }
   }
-  
 }
 
 void SCClient::connectToSCS()
@@ -79,9 +81,22 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   while (running)
   {
     // Update asio to read messages from simulator, agent and SimControl Server
+    // Do at least one
     mIOService.run_one(ec);
     if (ec)
-      cout << "(SCClient::doRun) Error doing cycle: " << ec << endl;
+      break;
+    
+    // And handle all others that are waiting
+    mIOService.poll(ec);
+    if (ec)
+      break;
+    
+    if (!mSCSComm.isConnected())
+    {
+      cout << "SimControl Server disconnected!" << endl;
+      break;
+    }
+    
     //cout << "t/pm: " << rcscomm.getGameTime() << "/" << rcscomm.getPlayMode() << endl;
     
     // Check if a new predicate arrived from the simulator
@@ -137,10 +152,25 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     }
   }
   
+  // Stop accepting connections from agents
+  mAgentAcceptor.close(ec);
+  
+  // Shutdown Agent Coms
+  for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+   (*iter)->shutdown();
+  
+  // Shutdown RCS Comm
+  rcscomm.shutdown();
+  
+  // Kill all agent processes
   forceKillAgents();
+  
+  // Kill simulator process
   forceKillSim();
   
-  mAgentAcceptor.cancel();
+  // Handle remaining events caused by shutdown
+  mIOService.poll();
+  
   mAgentComms.clear();
 }
 
@@ -169,8 +199,6 @@ void SCClient::forceKillSim()
 
 void SCClient::spawnAgent(AgentDef const& agentDef)
 {
-  //cout << "Spawning agent.." << endl;
-  
   vector<string> args;
   for (int i = 0; i < agentDef.nArgs; ++i)
     args.push_back(agentDef.args[i]);
@@ -184,22 +212,21 @@ void SCClient::initAcceptors()
 {
   tcp::endpoint sccendpoint(tcp::v4(), 15124);
   mAgentAcceptor.open(sccendpoint.protocol());
+  mAgentAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mAgentAcceptor.bind(sccendpoint);
   mAgentAcceptor.listen();
 }
 
 void SCClient::startAgentAccept()
 {
-  //cout << "Starting Agent accept.." << endl;
   AgentCommPtr newComm = AgentCommPtr(new AgentComm(mIOService));
   mAgentAcceptor.async_accept(*newComm->getSocket(), boost::bind(&SCClient::handleAgentAccept, this, boost::asio::placeholders::error, newComm));
 }
 
 void SCClient::handleAgentAccept(boost::system::error_code const& error, AgentCommPtr comm)
 {
-  //cout << "Connection accepted!" << endl;
   if (error)
-    cout << "But error: " << error << endl;
+    return;
   
   mAgentComms.push_back(comm);
   comm->startRead();
