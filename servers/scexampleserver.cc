@@ -1,4 +1,4 @@
-#include "SCServer/scserver.hh"
+#include "../scserver/SCServer/scserver.hh"
 #include <iostream>
 #include <sstream>
 
@@ -21,8 +21,17 @@ void handleAgentData(int runId, std::string const& data)
   }
 }
 
-int main()
+int main(int argc, char const** argv)
 {
+  if (argc < 3)
+  {
+    cout << "Usage: " << argv[0] << " <workingdir> <binary>" << endl;
+    return 0;
+  }
+  
+  string workDir(argv[1]);
+  string binary(argv[2]);
+
   cnt = 0;
   // Make dummy run
   unsigned nAgents = 1;
@@ -35,8 +44,6 @@ int main()
   
   for (unsigned a = 0; a < nAgents; ++a)
   {
-    string binary("./boldagent");
-    string workDir("/home/sander/src/boldagent.simcontrol");
     memcpy(r1->agents[a].binary, binary.c_str(), binary.size());
     memcpy(r1->agents[a].workDir, workDir.c_str(), workDir.size());
     r1->agents[a].startupTime = 1;

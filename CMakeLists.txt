@@ -8,3 +8,4 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 add_subdirectory(scserver)
 add_subdirectory(scclient)
+add_subdirectory(servers)

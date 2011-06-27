@@ -23,6 +23,9 @@ namespace sc
     /// Signal to SimControl Server that client is ready for a new run
     bool signalReady();
     
+    /// Signal to SimControl Server that current run is finished
+    bool signalDone();
+    
     /// Whether the server requested monitor data
     bool monDataRequested() const { return mMonDataRequested; }
     

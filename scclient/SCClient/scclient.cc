@@ -69,7 +69,12 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     spawnAgent(runDef->agents[i]);
     // Sleep until agent is started (TODO: use better (boost) timer);
     //cout << "Sleeping " << runDef->agents[i].startupTime << "s" << endl;
-    sleep(runDef->agents[i].startupTime);
+    
+    for (double s = 0; s < runDef->agents[i].startupTime; s += 1)
+    {
+      sleep(1);
+      mIOService.poll(ec);
+    }
   }
 
   // Connect to simulator and start async reading from it
@@ -172,6 +177,8 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   mIOService.poll();
   
   mAgentComms.clear();
+  
+  mSCSComm.signalDone();
 }
 
 void SCClient::spawnSim()

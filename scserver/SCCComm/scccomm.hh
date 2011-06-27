@@ -19,6 +19,14 @@ namespace sc
     /// Whether the client is ready for a new run
     bool isReady() const { return mReady; }
     
+    /// Whether the client finished the previous run
+    bool isDone()
+    {
+      bool res = mDone;
+      mDone = false;
+      return res;
+    }
+    
     /// Send the client a new run
     void sendRun(boost::shared_ptr<RunDef> runDef);
   
@@ -68,6 +76,8 @@ namespace sc
     bool mNewAgentData;
     
     std::string mAgentData;
+    
+    bool mDone;
     
     virtual void handleReadMsg(boost::system::error_code const& error, std::size_t bytes_transferred);
   };

@@ -82,6 +82,8 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
     return;
   }
   
+  mInMsgBuf[bytes_transferred] = 0;
+  
   mParser.reset();
   mParser.parse('(');
   mParser.parse(mInMsgBuf, bytes_transferred);

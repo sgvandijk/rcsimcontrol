@@ -13,6 +13,7 @@ namespace sc
     enum MsgType
     {
       MT_READY,       ///< Client ready to receive new run
+      MT_RUNDONE,     ///< Run is finished
       MT_RUNDEF,      ///< Run definition
       MT_REQMONDATA,  ///< Request for monitor data
       MT_ENDMONDATA,  ///< Request to stop sending monitor data
@@ -62,8 +63,8 @@ namespace sc
     bool mConnected;
   
     char     mPrefBuf[4];
-    char     mInMsgBuf[102400];
-    char     mOutMsgBuf[102400];
+    char     mInMsgBuf[1048576];
+    char     mOutMsgBuf[1048576];
   };
 }
 

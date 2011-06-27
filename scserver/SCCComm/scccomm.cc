@@ -76,6 +76,10 @@ void SCCComm::handleReadMsg(boost::system::error_code const& error, size_t bytes
     mAgentData = msg;
     mNewAgentData = true;
     break;
+  
+  case MT_RUNDONE:
+    mDone = true;
+    break;
     
   default:
     cout << "(SCCComm::handleReadMsg) Unexpected message type: " << msgType << endl;

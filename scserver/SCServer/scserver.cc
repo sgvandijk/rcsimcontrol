@@ -24,15 +24,23 @@ void SCServer::run()
     //cout << "SCServer::run()" << endl;
     mIOService.run_one();
     
-    // Check if we have ready clients
+    // Check if we have done or ready clients
     for (list<SCCCommPtr>::iterator iter = mSCCComms.begin(); iter != mSCCComms.end(); ++iter)
-      if ((*iter)->isReady() && mRuns.size() > 0)
+    {
+      if ((*iter)->isDone())
+        mSignalDone((*iter)->getCurrentRun()->id);
+      
+      if ((*iter)->isReady())
       {
-        RunDefPtr rundef = mRuns.front();
-        mRuns.pop_front();
-        (*iter)->sendRun(rundef);
-        mRuns.push_back(rundef);
+        mSignalReady();
+        if (mRuns.size() > 0)
+        {
+          RunDefPtr rundef = mRuns.front();
+          mRuns.pop_front();
+          (*iter)->sendRun(rundef);
+        }
       }
+    }
     
     // Forward monitor data
     if (mMonDataClient.get() && mMonDataClient->newMonData())

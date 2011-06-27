@@ -31,6 +31,11 @@ bool SCSComm::signalReady()
   sendMsg(MT_READY);
 }
 
+bool SCSComm::signalDone()
+{
+  sendMsg(MT_RUNDONE);
+}
+
 bool SCSComm::sendMonData(string const& data)
 {
   sendMsg(MT_MONDATA, data);
