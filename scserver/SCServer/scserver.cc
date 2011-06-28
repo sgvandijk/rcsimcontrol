@@ -62,15 +62,14 @@ void SCServer::run()
       }
     }
     
-    // Signal agent data
+    // Signal agent data and score
     for (list<SCCCommPtr>::iterator iter = mSCCComms.begin(); iter != mSCCComms.end(); ++iter)
     {
       if ((*iter)->newAgentData())
-      {
         mSignalAgentMessage((*iter)->getCurrentRun()->id, (*iter)->getAgentData());
-      }
+      if ((*iter)->newScore())
+        mSignalScore((*iter)->getCurrentRun()->id, (*iter)->getScoreLeft(), (*iter)->getScoreRight());
     }
-    
   }
 }
 

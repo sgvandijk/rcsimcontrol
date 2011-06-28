@@ -28,22 +28,30 @@ boost::shared_ptr<RunDef> SCSComm::getRun()
 
 bool SCSComm::signalReady()
 {
-  sendMsg(MT_READY);
+  return sendMsg(MT_READY);
 }
 
 bool SCSComm::signalDone()
 {
-  sendMsg(MT_RUNDONE);
+  return sendMsg(MT_RUNDONE);
 }
 
 bool SCSComm::sendMonData(string const& data)
 {
-  sendMsg(MT_MONDATA, data);
+  return sendMsg(MT_MONDATA, data);
 }
 
 bool SCSComm::sendAgentData(string const& data)
 {
-  sendMsg(MT_AGENTDATA, data);
+  return sendMsg(MT_AGENTDATA, data);
+}
+
+bool SCSComm::sendScore(int scoreLeft, int scoreRight)
+{
+  char buf[2*sizeof(int)];
+  memcpy(buf, reinterpret_cast<char*>(&scoreLeft), sizeof(int));
+  memcpy(buf + sizeof(int), reinterpret_cast<char*>(&scoreRight), sizeof(int));
+  return sendMsg(MT_SCORE, buf, 2*sizeof(int));
 }
 
 void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes_transferred)

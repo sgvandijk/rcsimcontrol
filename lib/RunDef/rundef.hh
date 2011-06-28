@@ -2,11 +2,18 @@
 #define SC_RUNDEF_HH_
 
 #include <boost/smart_ptr.hpp>
+#include <cstring>
 
 namespace sc
 {
   struct AgentDef
   {
+    AgentDef()
+    {
+      memset(workDir, 0, 64);
+      memset(binary, 0, 64);
+    }
+    
     ~AgentDef()
     {
       for (int i = 0; i < nArgs; ++i)

@@ -12,6 +12,7 @@ namespace sc
   typedef boost::signal<void(int, std::string const&)> MessageSignal;
   typedef boost::signal<void(void)> ReadySignal;
   typedef boost::signal<void(int)> DoneSignal;
+  typedef boost::signal<void(int, int, int)> ScoreSignal;
   
   class SCServer
   {
@@ -34,6 +35,9 @@ namespace sc
 
     /// Get signal to add a handler for agent data
     MessageSignal& getAgentMessageSignal() { return mSignalAgentMessage; }
+    
+    /// Get signal to add a handler for score data
+    ScoreSignal& getScoreSignal() { return mSignalScore; }
     
   // Private members
   private:
@@ -67,6 +71,9 @@ namespace sc
     /// Signal run finished
     DoneSignal mSignalDone;
     
+    /// Signal score
+    ScoreSignal mSignalScore;
+
   private:
     /// Initialize the acception of connections
     void initAcceptors();

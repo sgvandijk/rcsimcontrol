@@ -13,12 +13,21 @@ struct TeamDef
   int rating;
 };
 
+struct MatchData
+{
+  string team1;
+  string team2;
+  int score1;
+  int score2;
+};
+
 SCServer scserver;
 int cnt;
 
 std::vector<TeamDef> teams;
 int runCnt = 0;
 std::string binary("start.sh");
+std::map<int, MatchData> matches;
 
 void handleReady()
 {
@@ -27,8 +36,8 @@ void handleReady()
   runCnt++;
   r1->id = runCnt;
   r1->termCond = RunDef::TC_FULLGAME;
-  r1->nAgents = 2;
-  r1->agents = new AgentDef[2];
+  r1->nAgents = 1;
+  r1->agents = new AgentDef[r1->nAgents];
   
   // Select random teams
   int t1 = 1.0 * rand() / (RAND_MAX + 1.0) * teams.size();
@@ -38,29 +47,47 @@ void handleReady()
     t2 = 1.0 * rand() / (RAND_MAX + 1.0) * teams.size();
 
   // First team
-  memcpy(r1->agents[0].binary, "./start.sh", 11);
+  memcpy(r1->agents[0].binary, "./start.sh", 10);
   memcpy(r1->agents[0].workDir, teams[t1].workDir.c_str(), teams[t1].workDir.size());
   r1->agents[0].startupTime = 10;
   r1->agents[0].nArgs = 1;
   r1->agents[0].args = new char*[1];
   r1->agents[0].args[0] = new char[32];
-  memcpy(r1->agents[0].args[0], "localhost", 10);
+  memset(r1->agents[0].args[0], 0, 32);
+  memcpy(r1->agents[0].args[0], "localhost", 9);
 
   // Second team
-  memcpy(r1->agents[1].binary, "./start.sh", 11);
+  memcpy(r1->agents[1].binary, "./start.sh", 10);
   memcpy(r1->agents[1].workDir, teams[t2].workDir.c_str(), teams[t2].workDir.size());
   r1->agents[1].startupTime = 10;
   r1->agents[1].nArgs = 1;
   r1->agents[1].args = new char*[1];
   r1->agents[1].args[0] = new char[32];
-  memcpy(r1->agents[1].args[0], "localhost", 10);
+  memset(r1->agents[1].args[0], 0, 32);
+  memcpy(r1->agents[1].args[0], "localhost", 9);
 
+  MatchData md;
+  md.team1 = teams[t1].name;
+  md.team2 = teams[t2].name;
+  md.score1 = 0;
+  md.score2 = 0;
+  matches[r1->id] = md;
+  
   scserver.addRun(r1);
 }
 
 void handleDone(int run)
 {
-  cout << "run " << run << " is done!" << endl;
+  ofstream rout("results.dat", ios::app);
+  MatchData md = matches[run];
+  rout << md.team1 << " " << md.team2 << " " << md.score1 << " " << md.score2 << endl;
+  matches.erase(run);
+}
+
+void handleScore(int run, int scoreLeft, int scoreRight)
+{
+  matches[run].score1 = scoreLeft;
+  matches[run].score2 = scoreRight;
 }
 
 int main(int argc, char const** argv)
@@ -86,6 +113,7 @@ int main(int argc, char const** argv)
   
   scserver.getReadySignal().connect(handleReady);
   scserver.getDoneSignal().connect(handleDone);
+  scserver.getScoreSignal().connect(handleScore);
   
   /*
   string workDir(argv[1]);

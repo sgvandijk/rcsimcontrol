@@ -10,7 +10,9 @@ RCSComm::RCSComm(boost::asio::io_service& ioservice)
 : Comm(ioservice),
   mNewPred(false),
   mGameTime(0),
-  mPlayMode(PM_UNKNOWN)
+  mPlayMode(PM_UNKNOWN),
+  mScoreLeft(0),
+  mScoreRight(0)
 {
   Parser::initialize();
 
@@ -36,9 +38,9 @@ void RCSComm::connect()
   Comm::connect("localhost", "3200");
 }
 
-void RCSComm::kickOff()
+void RCSComm::kickOff(string const& side)
 {
-  string msg("(kickOff Left)");
+  string msg("(kickOff " + side + ")");
   unsigned messageLength = prepareMsg(mOutMsgBuf, msg);
   try
   {
@@ -118,6 +120,22 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   {
     PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
     mPlayMode = mPlayModeMap[mPlayModeList[pred->get(0)->getInt()]];
+  }
+
+  // Extract goal
+  node = mPred->findDeep("score_left");
+  if (node)
+  {
+    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    mScoreLeft = pred->get(0)->getInt();
+    mNewScore = true;
+  }
+  node = mPred->findDeep("score_right");
+  if (node)
+  {
+    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    mScoreRight = pred->get(0)->getInt();
+    mNewScore = true;
   }
 
   mNewPred = true;

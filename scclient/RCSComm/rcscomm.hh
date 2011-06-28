@@ -46,7 +46,7 @@ namespace sc
     void connect();
   
     /// Perform kick-off
-    void kickOff();
+    void kickOff(std::string const& side = "Left");
     
     /// Get curret game time
     double getGameTime();
@@ -65,7 +65,20 @@ namespace sc
     /// Get latest predicate
     PredicatePtr getPred() { return mPred; }
     
+    /// Request a full monitor frame
     void requestFullState();
+    
+    /// Whether there is a new score
+    bool newScore()
+    {
+      bool res = mNewScore;
+      mNewScore = false;
+      return res;
+    }
+    
+    int getScoreLeft() const { return mScoreLeft; }
+    
+    int getScoreRight() const { return mScoreRight; }
     
   protected:
     void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
@@ -81,6 +94,10 @@ namespace sc
     
     double mGameTime;
     PlayMode mPlayMode;
+    
+    bool mNewScore;
+    int mScoreLeft;
+    int mScoreRight;
   };
 }
 

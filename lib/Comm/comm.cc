@@ -132,3 +132,28 @@ bool Comm::sendMsg(MsgType type, string const& msg)
   
   return mConnected;
 }
+
+bool Comm::sendMsg(MsgType type, char* msg, int msgLen)
+{
+  size_t len = sizeof(type) + msgLen;
+  size_t pref = htonl(len);
+  size_t bufLen = len + 4;//sizeof(pref);
+  
+  char* cursor = mOutMsgBuf;
+  memcpy(cursor, reinterpret_cast<char*>(&pref), 4);
+  cursor += 4;
+  memcpy(cursor, reinterpret_cast<char*>(&type), sizeof(type));
+  cursor += sizeof(type);
+  memcpy(cursor, msg, msgLen);
+  
+  try
+  {
+    boost::asio::write(mSocket, boost::asio::buffer(mOutMsgBuf, bufLen));
+  }
+  catch(boost::system::system_error error)
+  {
+    mConnected = false;
+  }
+  
+  return mConnected;
+}

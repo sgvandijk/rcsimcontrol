@@ -64,20 +64,34 @@ namespace sc
     /// Get the description of the current run being performed
     boost::shared_ptr<RunDef> getCurrentRun() const { return mCurrentRun; }
     
+    /// Whether there is a new score
+    bool newScore()
+    {
+      bool res = mNewScore;
+      mNewScore = false;
+      return res;
+    }
+    
+    int getScoreLeft() const { return mScoreLeft; }
+    
+    int getScoreRight() const { return mScoreRight; }
+    
   private:
     bool mReady;
     
     boost::shared_ptr<RunDef> mCurrentRun;
     
     bool mNewMonData;
-    
     std::string mMonData;
     
     bool mNewAgentData;
-    
     std::string mAgentData;
     
     bool mDone;
+
+    bool mNewScore;
+    int mScoreLeft;
+    int mScoreRight;
     
     virtual void handleReadMsg(boost::system::error_code const& error, std::size_t bytes_transferred);
   };

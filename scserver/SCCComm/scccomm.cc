@@ -80,6 +80,12 @@ void SCCComm::handleReadMsg(boost::system::error_code const& error, size_t bytes
   case MT_RUNDONE:
     mDone = true;
     break;
+  
+  case MT_SCORE:
+    mScoreLeft = *reinterpret_cast<int const*>(mInMsgBuf + sizeof(msgType));
+    mScoreRight = *reinterpret_cast<int const*>(mInMsgBuf + sizeof(msgType) + sizeof(int));
+    mNewScore = true;
+    break;
     
   default:
     cout << "(SCCComm::handleReadMsg) Unexpected message type: " << msgType << endl;

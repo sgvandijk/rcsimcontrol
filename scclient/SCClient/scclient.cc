@@ -20,6 +20,8 @@ SCClient::SCClient(string const& scshost, string const& scsport)
 
 void SCClient::run()
 {
+  initAcceptors();
+
   // Connect to SimControl Server and start async reading from it
   connectToSCS();
   mSCSComm.startRead();
@@ -58,7 +60,6 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   sleep(2);
   
   // Start listening for agents
-  initAcceptors();
   startAgentAccept();
   
   boost::system::error_code ec;
@@ -83,6 +84,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   rcscomm.startRead();
 
   bool running = true;
+  bool firstHalf = true;
   while (running)
   {
     // Update asio to read messages from simulator, agent and SimControl Server
@@ -111,7 +113,10 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       {
       // Do the kickoff
       case RCSComm::PM_BEFORE_KICKOFF:
-        rcscomm.kickOff();
+        if (firstHalf)
+          rcscomm.kickOff("Left");
+        else
+          rcscomm.kickOff("Right");
         break;
       
       // Game over
@@ -119,9 +124,17 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
         running = false;
         break;
         
+      case RCSComm::PM_PLAY_ON:
+        firstHalf = false;
+        break;
+
       default:
         break;
       }
+      
+      // Forward score
+      if (rcscomm.newScore())
+        mSCSComm.sendScore(rcscomm.getScoreLeft(), rcscomm.getScoreRight());
       
       // Check if time ran out if we are running in timed mode
       if (runDef->termCond == RunDef::TC_TIMED && rcscomm.getGameTime() > runDef->termTime)
@@ -157,9 +170,6 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     }
   }
   
-  // Stop accepting connections from agents
-  mAgentAcceptor.close(ec);
-  
   // Shutdown Agent Coms
   for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
    (*iter)->shutdown();
@@ -172,6 +182,9 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   
   // Kill simulator process
   forceKillSim();
+  
+  // Stop accepting connections from agents
+  mAgentAcceptor.cancel();
   
   // Handle remaining events caused by shutdown
   mIOService.poll();

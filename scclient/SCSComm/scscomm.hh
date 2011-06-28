@@ -43,6 +43,9 @@ namespace sc
     /// Send agent data to the server
     bool sendAgentData(std::string const& data);
     
+    /// Send score to the server
+    bool sendScore(int scoreLeft, int scoreRight);
+    
     /// Whether the server sent a message for the agents
     bool newAgentMessageReceived()
     {

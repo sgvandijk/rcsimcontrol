@@ -12,14 +12,15 @@ namespace sc
   public:
     enum MsgType
     {
-      MT_READY,       ///< Client ready to receive new run
-      MT_RUNDONE,     ///< Run is finished
-      MT_RUNDEF,      ///< Run definition
-      MT_REQMONDATA,  ///< Request for monitor data
-      MT_ENDMONDATA,  ///< Request to stop sending monitor data
-      MT_MONDATA,     ///< Monitor data
-      MT_AGENTDATA,   ///< Data received from agent
-      MT_AGENTMESSAGE ///< Message sent to agent
+      MT_READY,         ///< Client ready to receive new run
+      MT_RUNDONE,       ///< Run is finished
+      MT_RUNDEF,        ///< Run definition
+      MT_REQMONDATA,    ///< Request for monitor data
+      MT_ENDMONDATA,    ///< Request to stop sending monitor data
+      MT_MONDATA,       ///< Monitor data
+      MT_AGENTDATA,     ///< Data received from agent
+      MT_AGENTMESSAGE,  ///< Message sent to agent
+      MT_SCORE          ///< Current score
     };
     
     Comm(boost::asio::io_service& ioservice);
@@ -57,6 +58,9 @@ namespace sc
     
     /// Send a message
     bool sendMsg(MsgType type, std::string const& msg);
+    
+    /// Send a message
+    bool sendMsg(MsgType type, char* msg, int len);
     
   protected:
     boost::asio::ip::tcp::socket mSocket;
