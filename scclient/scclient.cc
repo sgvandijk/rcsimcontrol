@@ -8,11 +8,14 @@ int main(int argc, char const** argv)
 {
   if (argc < 3)
   {
-    cout << "Usage: " << argv[0] << " <hostname> <port>" << endl;
+    cout << "Usage: " << argv[0] << " <hostname> <port> [basedir]" << endl;
     exit(-1);
   }
   
-  
+  string baseDir = "./";
+  if (argc == 4)
+    baseDir = argv[3];
+    
   SCClient scc(argv[1], argv[2]);
   scc.run();
 }

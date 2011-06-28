@@ -23,7 +23,7 @@ namespace sc
   // Public methods
   public:
     /// Constructor
-    SCClient(std::string const& scshost, std::string const& scsport);
+    SCClient(std::string const& scshost, std::string const& scsport, std::string const& baseDir);
     
     /// Run SimControl client
     void run();
@@ -67,6 +67,9 @@ namespace sc
     
     /// SimControl Server port
     std::string mSCSPort;
+    
+    /// Base directory for binaries
+    std::string mBaseDir;
     
     /// SimControl Server communication instance
     SCSComm mSCSComm;
