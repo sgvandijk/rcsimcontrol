@@ -137,7 +137,23 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
     mScoreRight = pred->get(0)->getInt();
     mNewScore = true;
   }
-
+  node = mPred->findDeep("Ball");
+  if (node)
+  {
+    cout << boost::shared_static_cast<Predicate>(node)->toString() << endl;
+    AST::NodePtr sltNode = node->find("SLT");
+    if (sltNode)
+    {
+      cout << "Ball SLT node!" << endl;
+      double m[16];
+      for (unsigned i = 0; i < 16; ++i)
+        m[i] = boost::shared_static_cast<Predicate>(sltNode->getChild(i))->getDouble();
+      mBallPos[0] = m[3];
+      mBallPos[1] = m[7];
+      mBallPos[2] = m[11];
+    }
+  }
+  
   mNewPred = true;
   
   startRead();

@@ -24,51 +24,70 @@ struct MatchData
 SCServer scserver;
 int cnt;
 
-std::vector<TeamDef> teams;
 int runCnt = 0;
 std::string binary("start.sh");
 std::map<int, MatchData> matches;
 
 void handleReady()
 {
-  cout << "Ready client..." << endl;
+  // Read teams from files
+  std::vector<TeamDef> teams;
+  ifstream tin("teams.dat");
+  string teamname;
+  while (tin >> teamname)
+  {
+    TeamDef def;
+    def.name = teamname;
+    tin >> def.workDir;
+    teams.push_back(def);
+    cout << "team: " << teamname << " " << def.workDir << endl;
+  }
+  
+  if (teams.size() < 2)
+  {
+    cout << "teams.dat contains less than 2 teams!" << endl;
+    exit(-1);
+  }
+  
+  // Select random teams
+  random_shuffle(teams.begin(), teams.end());
+
   boost::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
   r1->id = runCnt;
   r1->termCond = RunDef::TC_FULLGAME;
-  r1->nAgents = 1;
+  r1->nAgents = 2;
   r1->agents = new AgentDef[r1->nAgents];
   
-  // Select random teams
-  int t1 = 1.0 * rand() / (RAND_MAX + 1.0) * teams.size();
-  cout << "t1: " << t1 << endl;
-  int t2 = t1;
-  while (t1 == t2)
-    t2 = 1.0 * rand() / (RAND_MAX + 1.0) * teams.size();
-
   // First team
   memcpy(r1->agents[0].binary, "./start.sh", 10);
-  memcpy(r1->agents[0].workDir, teams[t1].workDir.c_str(), teams[t1].workDir.size());
-  r1->agents[0].startupTime = 10;
-  r1->agents[0].nArgs = 1;
-  r1->agents[0].args = new char*[1];
+  memcpy(r1->agents[0].workDir, teams[0].workDir.c_str(), teams[0].workDir.size());
+  r1->agents[0].startupTime = 20;
+  r1->agents[0].nArgs = 2;
+  r1->agents[0].args = new char*[2];
   r1->agents[0].args[0] = new char[32];
   memset(r1->agents[0].args[0], 0, 32);
   memcpy(r1->agents[0].args[0], "localhost", 9);
+  r1->agents[0].args[1] = new char[32];
+  memset(r1->agents[0].args[1], 0, 32);
+  memcpy(r1->agents[0].args[1], teams[0].name.c_str(), teams[0].name.size());
 
   // Second team
   memcpy(r1->agents[1].binary, "./start.sh", 10);
-  memcpy(r1->agents[1].workDir, teams[t2].workDir.c_str(), teams[t2].workDir.size());
-  r1->agents[1].startupTime = 10;
-  r1->agents[1].nArgs = 1;
-  r1->agents[1].args = new char*[1];
+  memcpy(r1->agents[1].workDir, teams[1].workDir.c_str(), teams[1].workDir.size());
+  r1->agents[1].startupTime = 20;
+  r1->agents[1].nArgs = 2;
+  r1->agents[1].args = new char*[2];
   r1->agents[1].args[0] = new char[32];
   memset(r1->agents[1].args[0], 0, 32);
   memcpy(r1->agents[1].args[0], "localhost", 9);
+  r1->agents[1].args[1] = new char[32];
+  memset(r1->agents[1].args[1], 0, 32);
+  memcpy(r1->agents[1].args[1], teams[1].name.c_str(), teams[1].name.size());
 
   MatchData md;
-  md.team1 = teams[t1].name;
-  md.team2 = teams[t2].name;
+  md.team1 = teams[0].name;
+  md.team2 = teams[1].name;
   md.score1 = 0;
   md.score2 = 0;
   matches[r1->id] = md;
@@ -92,24 +111,6 @@ void handleScore(int run, int scoreLeft, int scoreRight)
 
 int main(int argc, char const** argv)
 {
-  
-  // Read teams from files
-  ifstream tin("teams.dat");
-  string teamname;
-  while (tin >> teamname)
-  {
-    TeamDef def;
-    def.name = teamname;
-    tin >> def.workDir;
-    teams.push_back(def);
-    cout << "team: " << teamname << " " << def.workDir << endl;
-  }
-  
-  if (teams.size() < 2)
-  {
-    cout << "teams.dat contains less than 2 teams!" << endl;
-    exit(-1);
-  }
   
   scserver.getReadySignal().connect(handleReady);
   scserver.getDoneSignal().connect(handleDone);

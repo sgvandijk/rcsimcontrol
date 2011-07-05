@@ -80,6 +80,7 @@ namespace sc
     
     int getScoreRight() const { return mScoreRight; }
     
+    void getBallPos(double  ballPos[]) { memcpy(ballPos, mBallPos, 3 * sizeof(double)); }
   protected:
     void handleReadMsg(const boost::system::error_code& error, std::size_t bytes_transferred);
     
@@ -91,6 +92,8 @@ namespace sc
 
     std::vector<std::string> mPlayModeList;
     std::map<std::string, PlayMode> mPlayModeMap;
+    
+    double mBallPos[3];
     
     double mGameTime;
     PlayMode mPlayMode;
