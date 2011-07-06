@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <boost/bind.hpp>
+#include <sys/time.h>
 
 using namespace sc;
 using namespace std;
@@ -86,6 +87,9 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 
   bool running = true;
   bool firstHalf = true;
+  timeval firstHalfOverTime;
+  firstHalfOverTime.tv_sec = 0;
+  
   while (running)
   {
     // Update asio to read messages from simulator, agent and SimControl Server
@@ -117,7 +121,18 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
         if (firstHalf)
           rcscomm.kickOff("Left");
         else
-          rcscomm.kickOff("Right");
+        {
+          if (firstHalfOverTime.tv_sec == 0)
+            gettimeofday(&firstHalfOverTime, 0);
+          else
+          {
+            timeval now;
+            gettimeofday(&now, 0);
+            double dt = now.tv_sec - firstHalfOverTime.tv_sec;
+            if (dt > 3)
+              rcscomm.kickOff("Right");
+          }
+        }
         break;
       
       // Game over

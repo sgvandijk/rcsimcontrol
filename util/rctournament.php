@@ -153,7 +153,8 @@ system("gnuplot /tmp/plot.gp");
     for ($i = 0; $i < sizeof($results); ++$i)
     {
       $res = $results[$i];
-      echo "<tr><td>".$teams[$res[0]]."</td><td>".$teams[$res[1]]."</td><td align=\"center\">".$res[2]."</td><td align=\"center\">".$res[3]."</td></tr>\n";
+      $bg = $i % 2 ? "#ddd" : "#fff";
+      echo "<tr style=\"background-color: $bg;\"><td>".$teams[$res[0]]."</td><td>".$teams[$res[1]]."</td><td align=\"center\">".$res[2]."</td><td align=\"center\">".$res[3]."</td></tr>\n";
     }
     ?>
   </body>

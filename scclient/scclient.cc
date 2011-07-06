@@ -16,6 +16,6 @@ int main(int argc, char const** argv)
   if (argc == 4)
     baseDir = argv[3];
     
-  SCClient scc(argv[1], argv[2]);
+  SCClient scc(argv[1], argv[2], baseDir);
   scc.run();
 }
