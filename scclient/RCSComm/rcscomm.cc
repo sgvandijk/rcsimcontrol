@@ -137,6 +137,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
     mScoreRight = pred->get(0)->getInt();
     mNewScore = true;
   }
+  /*
   node = mPred->findDeep("Ball");
   if (node)
   {
@@ -156,6 +157,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
       mBallPos[2] = m[11];
     }
   }
+  * */
   
   mNewPred = true;
   

@@ -17,6 +17,8 @@ for ($i = 0; $i < sizeof($data); ++$i)
     }
     $res[0] = array_search($res[0], $teams);
     $res[1] = array_search($res[1], $teams);
+    $res[2] = $res[2] + 0;
+    $res[3] = $res[3] + 0;
     $results[sizeof($results)] = $res;
   }
 }

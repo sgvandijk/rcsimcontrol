@@ -27,6 +27,7 @@ int cnt;
 int runCnt = 0;
 std::string binary("start.sh");
 std::map<int, MatchData> matches;
+bool challengerMode;
 
 void handleReady()
 {
@@ -48,20 +49,40 @@ void handleReady()
     cout << "teams.dat contains less than 2 teams!" << endl;
     exit(-1);
   }
+  TeamDef t1, t2;
   
-  // Select random teams
-  random_shuffle(teams.begin(), teams.end());
+  if (challengerMode)
+  {
+    t1 = teams[0];
+    
+    vector<TeamDef> teams2;
+    for (int i = 1; i < teams.size(); ++i)
+      teams2.push_back(teams[i]);
+      
+    random_shuffle(teams2.begin(), teams2.end());
 
+    t2 = teams2[0];
+    
+  }
+  else
+  {
+    // Select random teams
+    random_shuffle(teams.begin(), teams.end());
+
+    t1 = teams[0];
+    t2 = teams[1];
+  }
+  
   boost::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
   r1->id = runCnt;
   r1->termCond = RunDef::TC_FULLGAME;
   r1->nAgents = 2;
   r1->agents = new AgentDef[r1->nAgents];
-  
+    
   // First team
   memcpy(r1->agents[0].binary, "./start.sh", 10);
-  memcpy(r1->agents[0].workDir, teams[0].workDir.c_str(), teams[0].workDir.size());
+  memcpy(r1->agents[0].workDir, t1.workDir.c_str(), t1.workDir.size());
   r1->agents[0].startupTime = 20;
   r1->agents[0].nArgs = 2;
   r1->agents[0].args = new char*[2];
@@ -70,11 +91,11 @@ void handleReady()
   memcpy(r1->agents[0].args[0], "localhost", 9);
   r1->agents[0].args[1] = new char[32];
   memset(r1->agents[0].args[1], 0, 32);
-  memcpy(r1->agents[0].args[1], teams[0].name.c_str(), teams[0].name.size());
+  memcpy(r1->agents[0].args[1], t1.name.c_str(), t1.name.size());
 
   // Second team
   memcpy(r1->agents[1].binary, "./start.sh", 10);
-  memcpy(r1->agents[1].workDir, teams[1].workDir.c_str(), teams[1].workDir.size());
+  memcpy(r1->agents[1].workDir, t2.workDir.c_str(), t2.workDir.size());
   r1->agents[1].startupTime = 20;
   r1->agents[1].nArgs = 2;
   r1->agents[1].args = new char*[2];
@@ -83,11 +104,11 @@ void handleReady()
   memcpy(r1->agents[1].args[0], "localhost", 9);
   r1->agents[1].args[1] = new char[32];
   memset(r1->agents[1].args[1], 0, 32);
-  memcpy(r1->agents[1].args[1], teams[1].name.c_str(), teams[1].name.size());
+  memcpy(r1->agents[1].args[1], t2.name.c_str(), t2.name.size());
 
   MatchData md;
-  md.team1 = teams[0].name;
-  md.team2 = teams[1].name;
+  md.team1 = t1.name;
+  md.team2 = t2.name;
   md.score1 = 0;
   md.score2 = 0;
   matches[r1->id] = md;
@@ -116,6 +137,13 @@ int main(int argc, char const** argv)
   scserver.getDoneSignal().connect(handleDone);
   scserver.getScoreSignal().connect(handleScore);
   
+  challengerMode = false;
+  if (argc == 2 && argv[1] == "-cm")
+  {
+    cout << "Super awesome challenger mode* on, happy go lucky! (*aka Cunt Mode)" << endl;
+    challengerMode = true;
+  }
+    
   /*
   string workDir(argv[1]);
   string binary(argv[2]);

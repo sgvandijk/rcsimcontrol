@@ -56,6 +56,36 @@ sctournamentserver.cc
 ../lib/PortableParser/static.cc
 ../lib/Process/process.cc)
 
+add_executable(scpenaltytournamentserver
+scpenaltytournamentserver.cc
+../scserver/SCServer/scserver.cc
+../scserver/SCCComm/scccomm.cc
+../scserver/RCMComm/rcmcomm.cc
+../lib/Path/init.cc
+../lib/Path/path.cc
+../lib/RunDef/rundef.cc
+../lib/Parser/parse.cc
+../lib/Parser/parser0.cc
+../lib/Parser/generate.cc
+../lib/Parser/initialize.cc
+../lib/Parser/static.cc
+../lib/AST/find.cc
+../lib/AST/finddeep.cc
+../lib/AST/findall.cc
+../lib/AST/findalldeep.cc
+../lib/AST/selectall.cc
+../lib/AST/select.cc
+../lib/Comm/comm.cc
+../lib/Comm/AgentDataComm/agentdatacomm.cc
+../lib/Predicate/destroy.cc
+../lib/Predicate/copy.cc
+../lib/Predicate/generate.cc
+../lib/Predicate/operator0.cc
+../lib/Predicate/toString.cc
+../lib/PortableParser/static.cc
+../lib/Process/process.cc)
+
 target_link_libraries(scexampleserver ${Boost_LIBRARIES})
 target_link_libraries(sctournamentserver ${Boost_LIBRARIES})
+target_link_libraries(scpenaltytournamentserver ${Boost_LIBRARIES})
 
