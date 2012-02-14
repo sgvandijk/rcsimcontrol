@@ -12,11 +12,13 @@ RCS3D=`which rcssserver3d`
 cp $RCS3D /tmp/rcs3d/bin/
 
 # copy libraries
-ldd $RCS3D | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
-ldd `spark-config --prefix`/lib/simspark/* | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
-ldd `spark-config --prefix`/lib/rcssserver3d/* | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
-cp -d `spark-config --prefix`/lib/simspark/* /tmp/rcs3d/libs
-cp -d `spark-config --prefix`/lib/rcssserver3d/* /tmp/rcs3d/libs
+#ldd $RCS3D | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
+ldd $RCS3d `spark-config --prefix`/lib/simspark/* `spark-config --prefix`/lib/rcssserver3d/* | awk '/=>/{print $3}' | sort | uniq | grep 'lib' | xargs -I '{}' cp '{}' /tmp/rcs3d/libs
+
+#ldd `spark-config --prefix`/lib/simspark/* | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
+#ldd `spark-config --prefix`/lib/rcssserver3d/* | awk '/=>/{ system("cp \"" $3 "\" /tmp/rcs3d/libs")}'
+cp -n `spark-config --prefix`/lib/simspark/* /tmp/rcs3d/libs
+cp -n `spark-config --prefix`/lib/rcssserver3d/* /tmp/rcs3d/libs
 
 # copy ruby files
 cp -r `spark-config --prefix`/share/simspark /tmp/rcs3d/share
@@ -26,9 +28,13 @@ cp -r `spark-config --prefix`/share/rcssserver3d /tmp/rcs3d/share
 cat > /tmp/rcs3d/runrcs3d.sh <<DELIM
 #!/bin/bash
 
+mkdir ~/.simspark
+cp -n share/rcssserver3d/* ~/.simspark -r
+cp -n share/simspark/* ~/.simspark -r
+
 cd bin
 export LD_LIBRARY_PATH=../libs
-./rcssserver3d
+./rcssserver3d --init-script-prefix ../share/simspark
 DELIM
 chmod 0755 /tmp/rcs3d/runrcs3d.sh
 
