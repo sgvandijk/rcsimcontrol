@@ -2,6 +2,7 @@
 #define SC_RUNDEF_HH_
 
 #include <boost/smart_ptr.hpp>
+#include <string>
 #include <cstring>
 
 namespace sc
