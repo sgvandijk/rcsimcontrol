@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (RCSimControl)
 
+find_package(Threads REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread system signals)
 
 include_directories(${Boost_INCLUDE_DIRS})

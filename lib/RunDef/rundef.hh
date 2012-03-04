@@ -9,11 +9,22 @@ namespace sc
   struct AgentDef
   {
     AgentDef()
+      : nArgs(0), args(0)
     {
       memset(workDir, 0, 64);
       memset(binary, 0, 64);
     }
     
+    AgentDef(std::string const& _binary,
+	     std::string const& _workDir)
+    {
+      memset(workDir, 0, 64);
+      memset(binary, 0, 64);
+      memcpy(binary, _binary.c_str(), _binary.size());
+      memcpy(workDir, _workDir.c_str(), _workDir.size());
+    } 
+	     
+	     
     ~AgentDef()
     {
       for (int i = 0; i < nArgs; ++i)
@@ -21,20 +32,21 @@ namespace sc
       delete[] args;
     }
     
-    /// Working directory
-    char               workDir[64];
-    
-    /// Expected startup time
-    double             startupTime;
-
     /// Agent binary
     char               binary[64];
 
+    /// Working directory
+    char               workDir[64];
+    
     /// Number of command line arguments
     int                nArgs;
     
     /// Command line arguments
     char**             args;
+
+    /// Expected startup time
+    double             startupTime;
+
   };
   
   struct RunDef

@@ -1,11 +1,35 @@
+/**********************************************************************
+ * SC Tournament Server
+ *
+ * Copyright (C) 2012 by Sander van Dijk (sgvandijk@gmail.com)
+ *
+ * Usage:
+ *  sctournamentserver [-cm]
+ *
+ * A list of teams to use in the tournament is read from a file
+ * 'teams.dat' in the current working directory. The file should
+ * contain at least 2 teams, with each team be on a seperate line,
+ * having the following format:
+ *
+ * TEAMNAME  WORKINGDIR
+ *
+ * For each match, 2 random teams are selected to play against each
+ * other. In 'challenger mode', enabled with the flag -cm, the first
+ * team in the file is placed against a random team from the rest of
+ * the list in each match.
+ **/
+//----------------------------------------------------------------------
 #include "../scserver/SCServer/scserver.hh"
 #include <iostream>
 #include <sstream>
 #include <fstream>
 
+//----------------------------------------------------------------------
 using namespace sc;
 using namespace std;
 
+//----------------------------------------------------------------------
+/// Team definition
 struct TeamDef
 {
   string name;
@@ -13,6 +37,7 @@ struct TeamDef
   int rating;
 };
 
+/// Match-data container
 struct MatchData
 {
   string team1;
@@ -21,17 +46,27 @@ struct MatchData
   int score2;
 };
 
+/// The server object
 SCServer scserver;
-int cnt;
 
+/// Number of runs done
 int runCnt = 0;
+
+/// The command to be run to start up a team
 std::string binary("start.sh");
+
+/// All match data is collected here
 std::map<int, MatchData> matches;
+
+/// Whether the server should run in challenger mode
 bool challengerMode;
 
+
+//----------------------------------------------------------------------
+// Called when client signals being ready for a new run
 void handleReady()
 {
-  // Read teams from files
+  // Read teams from file
   std::vector<TeamDef> teams;
   ifstream tin("teams.dat");
   string teamname;
@@ -44,13 +79,17 @@ void handleReady()
     cout << "team: " << teamname << " " << def.workDir << endl;
   }
   
+  // Need more than 1 team for a tournament
   if (teams.size() < 2)
   {
     cout << "teams.dat contains less than 2 teams!" << endl;
     exit(-1);
   }
+
   TeamDef t1, t2;
-  
+
+  // In challenger mode, always select the first team and a random
+  // team from the rest
   if (challengerMode)
   {
     t1 = teams[0];
@@ -64,6 +103,7 @@ void handleReady()
     t2 = teams2[0];
     
   }
+  // Otherwise, select two random teams
   else
   {
     // Select random teams
@@ -73,6 +113,7 @@ void handleReady()
     t2 = teams[1];
   }
   
+  // Create a run definition for a full game
   boost::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
   r1->id = runCnt;
@@ -81,31 +122,30 @@ void handleReady()
   r1->agents = new AgentDef[r1->nAgents];
     
   // First team
-  memcpy(r1->agents[0].binary, "./start.sh", 10);
-  memcpy(r1->agents[0].workDir, t1.workDir.c_str(), t1.workDir.size());
+  r1->agents[0] = AgentDef("./start.sh", t1.workDir);
   r1->agents[0].startupTime = 20;
   r1->agents[0].nArgs = 2;
   r1->agents[0].args = new char*[2];
   r1->agents[0].args[0] = new char[32];
   memset(r1->agents[0].args[0], 0, 32);
-  memcpy(r1->agents[0].args[0], "localhost", 9);
+  memcpy(r1->agents[0].args[0], "127.0.0.1", 9);
   r1->agents[0].args[1] = new char[32];
   memset(r1->agents[0].args[1], 0, 32);
   memcpy(r1->agents[0].args[1], t1.name.c_str(), t1.name.size());
 
   // Second team
-  memcpy(r1->agents[1].binary, "./start.sh", 10);
-  memcpy(r1->agents[1].workDir, t2.workDir.c_str(), t2.workDir.size());
+  r1->agents[1] = AgentDef("./start.sh", t2.workDir);
   r1->agents[1].startupTime = 20;
   r1->agents[1].nArgs = 2;
   r1->agents[1].args = new char*[2];
   r1->agents[1].args[0] = new char[32];
   memset(r1->agents[1].args[0], 0, 32);
-  memcpy(r1->agents[1].args[0], "localhost", 9);
+  memcpy(r1->agents[1].args[0], "127.0.0.1", 9);
   r1->agents[1].args[1] = new char[32];
   memset(r1->agents[1].args[1], 0, 32);
   memcpy(r1->agents[1].args[1], t2.name.c_str(), t2.name.size());
 
+  // Initialize match data
   MatchData md;
   md.team1 = t1.name;
   md.team2 = t2.name;
@@ -113,23 +153,32 @@ void handleReady()
   md.score2 = 0;
   matches[r1->id] = md;
   
+  // Add run to server
   scserver.addRun(r1);
 }
 
+//----------------------------------------------------------------------
+// Called when run is finished
 void handleDone(int run)
 {
+  // Get match data and append to results file
   ofstream rout("results.dat", ios::app);
   MatchData md = matches[run];
   rout << md.team1 << " " << md.team2 << " " << md.score1 << " " << md.score2 << endl;
   matches.erase(run);
 }
 
+
+//----------------------------------------------------------------------
+// Called when score has changed
 void handleScore(int run, int scoreLeft, int scoreRight)
 {
   matches[run].score1 = scoreLeft;
   matches[run].score2 = scoreRight;
 }
 
+//----------------------------------------------------------------------
+// Main
 int main(int argc, char const** argv)
 {
   
@@ -140,43 +189,9 @@ int main(int argc, char const** argv)
   challengerMode = false;
   if (argc == 2 && argv[1] == "-cm")
   {
-    cout << "Super awesome challenger mode* on, happy go lucky! (*aka Cunt Mode)" << endl;
+    cout << "Running in Challenger Mode" << endl;
     challengerMode = true;
   }
-    
-  /*
-  string workDir(argv[1]);
-  string binary(argv[2]);
 
-  cnt = 0;
-  // Make dummy run
-  unsigned nAgents = 1;
-  boost::shared_ptr<RunDef> r1(new RunDef());
-  r1->id = 1;
-  r1->termCond = RunDef::TC_TIMED;
-  r1->termTime = 20;
-  r1->nAgents = nAgents;
-  r1->agents = new AgentDef[nAgents];
-  
-  for (unsigned a = 0; a < nAgents; ++a)
-  {
-    memcpy(r1->agents[a].binary, binary.c_str(), binary.size());
-    memcpy(r1->agents[a].workDir, workDir.c_str(), workDir.size());
-    r1->agents[a].startupTime = 1;
-    r1->agents[a].nArgs = 2;
-    r1->agents[a].args = new char*[2];
-    r1->agents[a].args[0] = new char[32];
-    r1->agents[a].args[1] = new char[32];
-    
-    memcpy(r1->agents[a].args[0], "-u", 2);
-    ostringstream unum;
-    unum << (a + 1);
-    memcpy(r1->agents[a].args[1], unum.str().c_str(), unum.str().size());
-  }
-
-  scserver.addRun(r1);
-  scserver.getAgentMessageSignal().connect(handleAgentData);
-  */
-  
   scserver.run();
 }
