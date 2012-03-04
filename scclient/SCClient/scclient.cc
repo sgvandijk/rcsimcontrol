@@ -48,9 +48,9 @@ void SCClient::run()
 
 void SCClient::connectToSCS()
 {
-  //cout << "Connecting to SimControl Server on " << mSCSHost << ":" << mSCSPort << "..." << endl;
+  cout << "Connecting to SimControl server (" << mSCSHost << ":" << mSCSPort << ")... ";
   mSCSComm.connect(mSCSHost, mSCSPort);
-  //cout << "Success!" << endl;
+  cout << "Done!" << endl;
 }
 
 void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
