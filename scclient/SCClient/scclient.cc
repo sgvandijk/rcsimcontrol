@@ -55,12 +55,13 @@ void SCClient::connectToSCS()
 
 void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 {
-  //cout << "Starting run " << runDef->id << endl;
-
+  cout << "Starting run " << runDef->id << endl;
+  cout << "Spawning simulator... ";
   // Spawn simulator
   spawnSim();
   sleep(2);
-  
+  cout << "Done!" << endl;
+
   // Start listening for agents
   startAgentAccept();
   
@@ -69,21 +70,24 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   // Spawn agents
   for (int i = 0; i < runDef->nAgents; ++i)
   {
+    cout << "Spawning agent " << (i + 1) << "... ";
     spawnAgent(runDef->agents[i]);
+
     // Sleep until agent is started (TODO: use better (boost) timer);
-    //cout << "Sleeping " << runDef->agents[i].startupTime << "s" << endl;
-    
     for (double s = 0; s < runDef->agents[i].startupTime; s += 1)
     {
       sleep(1);
       mIOService.poll(ec);
     }
+    cout << "Done!" << endl;
   }
 
   // Connect to simulator and start async reading from it
+  cout << "Connecting to simulator... ";
   RCSComm rcscomm(mIOService);
   rcscomm.connect();
   rcscomm.startRead();
+  cout << "Done!" << endl;
 
   bool running = true;
   bool firstHalf = true;
@@ -103,13 +107,12 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     if (ec)
       break;
     
+    // Check whether we are still connected to the simulator
     if (!mSCSComm.isConnected())
     {
       cout << "SimControl Server disconnected!" << endl;
       break;
     }
-    
-    //cout << "t/pm: " << rcscomm.getGameTime() << "/" << rcscomm.getPlayMode() << endl;
     
     // Check if a new predicate arrived from the simulator
     if (rcscomm.newPred())
@@ -148,12 +151,13 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
         break;
       }
       
-      // Forward score
+      // Forward score to SC Server
       if (rcscomm.newScore())
         mSCSComm.sendScore(rcscomm.getScoreLeft(), rcscomm.getScoreRight());
       
       // Check if time ran out if we are running in timed mode
-      if (runDef->termCond == RunDef::TC_TIMED && rcscomm.getGameTime() > runDef->termTime)
+      if (runDef->termCond == RunDef::TC_TIMED &&
+	  rcscomm.getGameTime() > runDef->termTime)
         running = false;
       
       // If we just got a new request to pass monitor info to the server
@@ -167,7 +171,9 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     }
     
     //Forward any agent data to the Sim Control Server
-    for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+    for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin();
+	 iter != mAgentComms.end();
+	 ++iter)
     {
       AgentCommPtr ac = *iter;
       if (ac->newData())
@@ -181,13 +187,17 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     if (mSCSComm.newAgentMessageReceived())
     {
       string msg = mSCSComm.getAgentMessage();
-      for (list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+      for (list<AgentCommPtr>::iterator iter = mAgentComms.begin();
+	   iter != mAgentComms.end();
+	   ++iter)
         (*iter)->sendMessage(msg);
     }
   }
   
   // Shutdown Agent Coms
-  for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin(); iter != mAgentComms.end(); ++iter)
+  for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin();
+       iter != mAgentComms.end();
+       ++iter)
    (*iter)->shutdown();
   
   // Shutdown RCS Comm
@@ -221,7 +231,9 @@ void SCClient::spawnSim()
 
 void SCClient::forceKillAgents()
 {
-  for (list<ProcessPtr>::iterator iter = mAgentProcs.begin(); iter != mAgentProcs.end(); ++iter)
+  for (list<ProcessPtr>::iterator iter = mAgentProcs.begin();
+       iter != mAgentProcs.end();
+       ++iter)
     (*iter)->forceKill();
 
   mAgentProcs.clear();
@@ -259,7 +271,8 @@ void SCClient::startAgentAccept()
   mAgentAcceptor.async_accept(*newComm->getSocket(), boost::bind(&SCClient::handleAgentAccept, this, boost::asio::placeholders::error, newComm));
 }
 
-void SCClient::handleAgentAccept(boost::system::error_code const& error, AgentCommPtr comm)
+void SCClient::handleAgentAccept(boost::system::error_code const& error,
+				 AgentCommPtr comm)
 {
   if (error)
     return;
