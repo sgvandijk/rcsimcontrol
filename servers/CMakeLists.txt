@@ -85,7 +85,7 @@ scpenaltytournamentserver.cc
 ../lib/PortableParser/static.cc
 ../lib/Process/process.cc)
 
-target_link_libraries(scexampleserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(sctournamentserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(scpenaltytournamentserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(scexampleserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCONFIGPP_LIBRARIES})
+target_link_libraries(sctournamentserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCONFIGPP_LIBRARIES})
+target_link_libraries(scpenaltytournamentserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCONFIGPP_LIBRARIES})
 

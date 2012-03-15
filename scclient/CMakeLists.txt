@@ -28,4 +28,4 @@ RCSComm/rcscomm.cc
 SCSComm/scscomm.cc
 SCClient/scclient.cc)
 
-target_link_libraries(scclient ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(scclient ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCONFIGPP_LIBRARIES})

@@ -20,14 +20,25 @@ namespace sc
    */
   class SCClient
   {
+  //------------------------------------------------------------
   // Public methods
   public:
     /// Constructor
-    SCClient(std::string const& scshost, std::string const& scsport, std::string const& baseDir);
+    SCClient(std::string const& scshost, std::string const& scsport);
     
+    /// Set the simulator working directory
+    void setSimDirPath(std::string const& path);
+    
+    /// Set the command to use to spawn the simulator
+    void setSimSpawnCmd(std::string const& cmd);
+
+    /// Set base directory where to find the agents
+    void setTeamsDirPath(std::string const& teamsDirPath);
+
     /// Run SimControl client
     void run();
     
+  //------------------------------------------------------------
   // Private methods
   private:
     /// Connect to SimControl Server
@@ -57,8 +68,19 @@ namespace sc
     /// Handle a new connection with an Agent
     void handleAgentAccept(boost::system::error_code const& error, AgentCommPtr conn);
 
+  //------------------------------------------------------------
   // Private members
   private:
+
+    /// Simulator directory path
+    std::string mSimDirPath;
+
+    /// Simulator spawn command
+    std::string mSimSpawnCmd;
+
+    /// Base directory for binaries
+    std::string mTeamsDirPath;
+    
     /// Main IO service
     boost::asio::io_service mIOService;
 
@@ -67,9 +89,6 @@ namespace sc
     
     /// SimControl Server port
     std::string mSCSPort;
-    
-    /// Base directory for binaries
-    std::string mBaseDir;
     
     /// SimControl Server communication instance
     SCSComm mSCSComm;
@@ -87,6 +106,25 @@ namespace sc
     std::list<AgentCommPtr> mAgentComms;
     
   };
+
+
+
+  //------------------------------------------------------------
+  // Inline methods
+  inline void SCClient::setTeamsDirPath(std::string const& teamsDirPath)
+  {
+    mTeamsDirPath = teamsDirPath;
+  }
+
+  inline void SCClient::setSimDirPath(std::string const& path)
+  {
+    mSimDirPath = path;
+  }
+
+  inline void SCClient::setSimSpawnCmd(std::string const& cmd)
+  {
+    mSimSpawnCmd = cmd;
+  }
 }
 
 #endif // SC_SCCLIENT_HH_

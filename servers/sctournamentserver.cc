@@ -18,17 +18,19 @@
  * team in the file is placed against a random team from the rest of
  * the list in each match.
  **/
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 #include "../scserver/SCServer/scserver.hh"
+#include <libconfig.h++>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 using namespace sc;
 using namespace std;
+using namespace libconfig;
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 /// Team definition
 struct TeamDef
 {
@@ -62,23 +64,39 @@ std::map<int, MatchData> matches;
 bool challengerMode;
 
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 // Called when client signals being ready for a new run
 void handleReady()
 {
   // Read teams from file
   std::vector<TeamDef> teams;
-  ifstream tin("teams.dat");
-  string teamname;
-  while (tin >> teamname)
+  try
   {
-    TeamDef def;
-    def.name = teamname;
-    tin >> def.workDir;
-    teams.push_back(def);
-    cout << "team: " << teamname << " " << def.workDir << endl;
+    Config conf;
+    conf.readFile("teams.cfg");
+
+    Setting& teamsList = conf.lookup("teams");
+    for (int i = 0; i < teamsList.getLength(); ++i)
+    {
+      TeamDef def;
+      bool success = 
+	teamsList[i].lookupValue("name", def.name) &&
+	teamsList[i].lookupValue("workdir", def.workDir);
+
+      if (success)
+      {
+	teams.push_back(def);
+	cout << "team: " << def.name << " " << def.workDir << endl;
+      }
+      else
+	cerr << "Failed reading team " << (i + 1) << endl;
+    }
   }
-  
+  catch (...)
+  {
+    cerr << "Error reading teams.cfg!" << endl;
+  }
+
   // Need more than 1 team for a tournament
   if (teams.size() < 2)
   {
@@ -157,7 +175,7 @@ void handleReady()
   scserver.addRun(r1);
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 // Called when run is finished
 void handleDone(int run)
 {
@@ -169,7 +187,7 @@ void handleDone(int run)
 }
 
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 // Called when score has changed
 void handleScore(int run, int scoreLeft, int scoreRight)
 {
@@ -177,7 +195,7 @@ void handleScore(int run, int scoreLeft, int scoreRight)
   matches[run].score2 = scoreRight;
 }
 
-//----------------------------------------------------------------------
+//------------------------------------------------------------
 // Main
 int main(int argc, char const** argv)
 {

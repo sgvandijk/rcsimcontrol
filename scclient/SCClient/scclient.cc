@@ -9,14 +9,16 @@ using namespace sc;
 using namespace std;
 using boost::asio::ip::tcp;
 
-SCClient::SCClient(string const& scshost, string const& scsport, string const& baseDir)
-: mIOService(),
-  mSCSHost(scshost),
-  mSCSPort(scsport),
-  mBaseDir(baseDir),
-  mSCSComm(mIOService),
-  mSimProc(),
-  mAgentAcceptor(mIOService)
+SCClient::SCClient(string const& scshost, string const& scsport)
+  : mSimDirPath("."),
+    mSimSpawnCmd("rcssserver3d"),
+    mTeamsDirPath("./"),
+    mIOService(),
+    mSCSHost(scshost),
+    mSCSPort(scsport),
+    mSCSComm(mIOService),
+    mSimProc(),
+    mAgentAcceptor(mIOService)
 {
 }
 
@@ -214,7 +216,7 @@ void SCClient::spawnSim()
 {
   //cout << "Spawning RCSSServer3d..." << endl;
   if (!mSimProc)
-    mSimProc = ProcessPtr(new Process("rcssserver3d"));
+    mSimProc = ProcessPtr(new Process(mSimSpawnCmd, mSimDirPath));
     
   mSimProc->spawn();
 }
@@ -239,7 +241,7 @@ void SCClient::spawnAgent(AgentDef const& agentDef)
   for (int i = 0; i < agentDef.nArgs; ++i)
     args.push_back(agentDef.args[i]);
     
-  ProcessPtr proc(new Process(agentDef.binary, mBaseDir + agentDef.workDir, args));
+  ProcessPtr proc(new Process(agentDef.binary, mTeamsDirPath + agentDef.workDir, args));
   mAgentProcs.push_back(proc);
   proc->spawn();
 }
