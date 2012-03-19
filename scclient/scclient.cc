@@ -1,5 +1,6 @@
 #include "SCClient/scclient.hh"
 #include <iostream>
+#include <csignal>
 #include <libconfig.h++>
 
 using namespace sc;
