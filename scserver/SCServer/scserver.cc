@@ -7,9 +7,14 @@ using namespace std;
 using boost::asio::ip::tcp;
 
 SCServer::SCServer()
-: mSCCAcceptor(mIOService),
-  mRCMAcceptor(mIOService)
+  : mIOService(),
+    mSignals(mIOService),
+    mSCCAcceptor(mIOService),
+    mRCMAcceptor(mIOService)
 {
+  mSignals.add(SIGINT);
+  mSignals.add(SIGTERM);
+  mSignals.async_wait(boost::bind(&SCServer::handleSignal, this));
 }
 
 void SCServer::run()
@@ -71,6 +76,30 @@ void SCServer::run()
         mSignalScore((*iter)->getCurrentRun()->id, (*iter)->getScoreLeft(), (*iter)->getScoreRight());
     }
   }
+}
+
+void SCServer::end()
+{
+  cout << "(SCServer) Closing and cleaning up" << endl;
+
+  // Shutdown connections to SC clients
+  for (list<SCCCommPtr>::iterator iter = mSCCComms.begin(); iter != mSCCComms.end(); ++iter)
+    (*iter)->shutdown();
+  mSCCComms.clear();
+  mMonDataClient.reset();
+  
+  // Shutdown connections to RC monitors
+  for (list<RCMCommPtr>::iterator iter = mRCMComms.begin(); iter != mRCMComms.end(); ++iter)
+    (*iter)->shutdown();
+  mRCMComms.clear();
+  
+  // Stop accepting connections
+  mSCCAcceptor.cancel();
+  mSCCAcceptor.close();
+  mRCMAcceptor.cancel();
+  mRCMAcceptor.close();
+
+  mIOService.stop();
 }
 
 void SCServer::sendMessageToAgents(int runId, string const& msg)
@@ -141,4 +170,10 @@ void SCServer::handleRCMAccept(boost::system::error_code const& error, RCMCommPt
   comm->startRead();
   
   startRCMAccept();
+}
+
+void SCServer::handleSignal()
+{
+  end();
+  exit(0);
 }

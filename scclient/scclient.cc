@@ -1,7 +1,8 @@
 #include "SCClient/scclient.hh"
+
 #include <iostream>
-#include <csignal>
 #include <libconfig.h++>
+#include <boost/asio.hpp>
 
 using namespace sc;
 using namespace std;
@@ -14,7 +15,6 @@ int main(int argc, char const** argv)
     cout << "Usage: " << argv[0] << " <hostname> <port>" << endl;
     exit(-1);
   }
-  
   string simDirPath = ".";
   string simSpawnCmd = "rcssserver3d";
   string teamsDirPath = "./";
@@ -33,9 +33,16 @@ int main(int argc, char const** argv)
     cerr << "Error reading client.cfg!" << endl;
   }
 
-  SCClient scc(argv[1], argv[2]);
-  scc.setSimDirPath(simDirPath);
-  scc.setSimSpawnCmd(simSpawnCmd);
-  scc.setTeamsDirPath(teamsDirPath);
-  scc.run();
+  try
+  {
+    SCClient scc(argv[1], argv[2]);
+    scc.setSimDirPath(simDirPath);
+    scc.setSimSpawnCmd(simSpawnCmd);
+    scc.setTeamsDirPath(teamsDirPath);
+    scc.run();
+  }
+  catch(...)
+  {
+    cerr << "Error running SCClient!" << endl;
+  }
 }

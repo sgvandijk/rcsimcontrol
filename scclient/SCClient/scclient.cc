@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <boost/bind.hpp>
+#include <boost/asio/signal_set.hpp>
 #include <sys/time.h>
 
 using namespace sc;
@@ -14,27 +15,39 @@ SCClient::SCClient(string const& scshost, string const& scsport)
     mSimSpawnCmd("rcssserver3d"),
     mTeamsDirPath("./"),
     mIOService(),
+    mSignals(mIOService),
     mSCSHost(scshost),
     mSCSPort(scsport),
     mSCSComm(mIOService),
     mSimProc(),
     mAgentAcceptor(mIOService)
 {
+  mSignals.add(SIGINT);
+  mSignals.add(SIGTERM);
+  mSignals.async_wait(boost::bind(&SCClient::handleSignal, this));
 }
 
 void SCClient::run()
 {
+  // Initialize connection acceptors
   initAcceptors();
 
   // Connect to SimControl Server and start async reading from it
   connectToSCS();
   mSCSComm.startRead();
   
-  while (mSCSComm.isConnected())
+  while (true)
   {
+    if (!mSCSComm.isConnected())
+    {
+      cout << "(SCClient) Server disconnected!" << endl;
+      end();
+      break;
+    }
+
     mSCSComm.signalReady();
     bool doneRun = false;
-    while (!doneRun)
+    while (mSCSComm.isConnected() && !doneRun)
     {
       // Update asio to read messages from SimControl Server
       mIOService.run_one();
@@ -48,21 +61,39 @@ void SCClient::run()
   }
 }
 
+void SCClient::end()
+{
+  cout << "(SCClient) Closing and cleaning up" << endl;
+
+  // Kill everything
+  forceKillAgents();
+  forceKillSim();
+
+  // Disconnect from Sim Control server
+  mSCSComm.shutdown();
+
+  // Stop accepting connections
+  mAgentAcceptor.cancel();
+  mAgentAcceptor.close();
+
+  mIOService.stop();
+}
+
 void SCClient::connectToSCS()
 {
-  cout << "Connecting to SimControl server (" << mSCSHost << ":" << mSCSPort << ")... ";
+  cout << "(SCClient) Connecting to SimControl server (" << mSCSHost << ":" << mSCSPort << ")... ";
   mSCSComm.connect(mSCSHost, mSCSPort);
-  cout << "Done!" << endl;
+  cout << "(SCClient) Done!" << endl;
 }
 
 void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 {
-  cout << "Starting run " << runDef->id << endl;
-  cout << "Spawning simulator... ";
+  cout << "(SCClient) Starting run " << runDef->id << endl;
+  cout << "(SCClient) Spawning simulator... ";
   // Spawn simulator
   spawnSim();
   sleep(2);
-  cout << "Done!" << endl;
+  cout << "(SCClient) Done!" << endl;
 
   // Start listening for agents
   startAgentAccept();
@@ -72,7 +103,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   // Spawn agents
   for (int i = 0; i < runDef->nAgents; ++i)
   {
-    cout << "Spawning agent " << (i + 1) << "... ";
+    cout << "(SCClient) Spawning agent " << (i + 1) << "... ";
     spawnAgent(runDef->agents[i]);
 
     // Sleep until agent is started (TODO: use better (boost) timer);
@@ -81,15 +112,15 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       sleep(1);
       mIOService.poll(ec);
     }
-    cout << "Done!" << endl;
+    cout << "(SCClient) Done!" << endl;
   }
 
   // Connect to simulator and start async reading from it
-  cout << "Connecting to simulator... ";
+  cout << "(SCClient) Connecting to simulator... ";
   RCSComm rcscomm(mIOService);
   rcscomm.connect();
   rcscomm.startRead();
-  cout << "Done!" << endl;
+  cout << "(SCClient) Done!" << endl;
 
   bool running = true;
   bool firstHalf = true;
@@ -112,7 +143,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     // Check whether we are still connected to the simulator
     if (!mSCSComm.isConnected())
     {
-      cout << "SimControl Server disconnected!" << endl;
+      cout << "(SCClient) SimControl Server disconnected!" << endl;
       break;
     }
     
@@ -224,7 +255,6 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 
 void SCClient::spawnSim()
 {
-  //cout << "Spawning RCSSServer3d..." << endl;
   if (!mSimProc)
     mSimProc = ProcessPtr(new Process(mSimSpawnCmd, mSimDirPath));
     
@@ -243,7 +273,8 @@ void SCClient::forceKillAgents()
 
 void SCClient::forceKillSim()
 {
-  mSimProc->forceKill();
+  if (mSimProc.get())
+    mSimProc->forceKill();
   mSimProc.reset();
 }
 
@@ -283,4 +314,10 @@ void SCClient::handleAgentAccept(boost::system::error_code const& error,
   comm->startRead();
   
   startAgentAccept();
+}
+
+void SCClient::handleSignal()
+{
+  end();
+  exit(0);
 }

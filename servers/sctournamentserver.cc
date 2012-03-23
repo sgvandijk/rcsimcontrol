@@ -95,12 +95,15 @@ void handleReady()
   catch (...)
   {
     cerr << "Error reading teams.cfg!" << endl;
+    scserver.end();
+    exit(-1);
   }
 
   // Need more than 1 team for a tournament
   if (teams.size() < 2)
   {
     cout << "teams.dat contains less than 2 teams!" << endl;
+    scserver.end();
     exit(-1);
   }
 
@@ -199,7 +202,6 @@ void handleScore(int run, int scoreLeft, int scoreRight)
 // Main
 int main(int argc, char const** argv)
 {
-  
   scserver.getReadySignal().connect(handleReady);
   scserver.getDoneSignal().connect(handleDone);
   scserver.getScoreSignal().connect(handleScore);
@@ -212,4 +214,7 @@ int main(int argc, char const** argv)
   }
 
   scserver.run();
+
+  cout << "Finished run(?)" << endl;
+  return 0;
 }

@@ -19,8 +19,12 @@ namespace sc
   public:
     SCServer();
     
+    /// Run SimControl server
     void run();
-    
+
+    /// End SimControl server cleanly
+    void end();
+
     /// Add a run to the list
     void addRun(RunDefPtr rundef) { mRuns.push_back(rundef); }
     
@@ -44,6 +48,9 @@ namespace sc
     /// Main IO service
     boost::asio::io_service mIOService;
     
+    /// Signal set for signal handling
+    boost::asio::signal_set mSignals;
+
     /// SimControl Client Connection acceptor
     boost::asio::ip::tcp::acceptor mSCCAcceptor;
     
@@ -89,7 +96,9 @@ namespace sc
 
     /// Handle a new connection with RC Monitor
     void handleRCMAccept(boost::system::error_code const& error, RCMCommPtr conn);
-    
+
+    /// Handle signal from system
+    void handleSignal();
   };
 }
 

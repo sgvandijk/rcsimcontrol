@@ -37,7 +37,10 @@ namespace sc
 
     /// Run SimControl client
     void run();
-    
+
+    /// End SimControl client clenly
+    void end();
+
   //------------------------------------------------------------
   // Private methods
   private:
@@ -68,6 +71,9 @@ namespace sc
     /// Handle a new connection with an Agent
     void handleAgentAccept(boost::system::error_code const& error, AgentCommPtr conn);
 
+    /// Handle signals received from system
+    void handleSignal();
+
   //------------------------------------------------------------
   // Private members
   private:
@@ -80,9 +86,12 @@ namespace sc
 
     /// Base directory for binaries
     std::string mTeamsDirPath;
-    
+
     /// Main IO service
     boost::asio::io_service mIOService;
+
+    /// Signal set for signal handling
+    boost::asio::signal_set mSignals;
 
     /// SimControl Server hostname
     std::string mSCSHost; 
