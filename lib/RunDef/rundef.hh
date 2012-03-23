@@ -18,6 +18,7 @@ namespace sc
     
     AgentDef(std::string const& _binary,
 	     std::string const& _workDir)
+      : nArgs(0), args(0)
     {
       memset(workDir, 0, 64);
       memset(binary, 0, 64);

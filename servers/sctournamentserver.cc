@@ -92,9 +92,27 @@ void handleReady()
 	cerr << "Failed reading team " << (i + 1) << endl;
     }
   }
-  catch (...)
+  catch (FileIOException fexc)
   {
-    cerr << "Error reading teams.cfg!" << endl;
+    cout << "Error reading configuration file (teams.cfg doesn't exist?): " << fexc.what() <<endl;
+    scserver.end();
+    exit(-1);
+  }
+  catch (ParseException pexc)
+  {
+    cout << "Error parsing configuration file: " << pexc.what() << endl;
+    scserver.end();
+    exit(-1);
+  }
+  catch (SettingException sexc)
+  {
+    cout << "Error reading configuration setting: " << sexc.getPath() << endl;
+    scserver.end();
+    exit(-1);
+  }
+  catch (ConfigException cexc)
+  {
+    cerr << "Error reading teams.cfg: " << cexc.what() << endl;
     scserver.end();
     exit(-1);
   }
@@ -147,24 +165,28 @@ void handleReady()
   r1->agents[0].startupTime = 20;
   r1->agents[0].nArgs = 2;
   r1->agents[0].args = new char*[2];
+  // arg1: host
   r1->agents[0].args[0] = new char[32];
   memset(r1->agents[0].args[0], 0, 32);
   memcpy(r1->agents[0].args[0], "127.0.0.1", 9);
+  // arg2: team name
   r1->agents[0].args[1] = new char[32];
   memset(r1->agents[0].args[1], 0, 32);
-  memcpy(r1->agents[0].args[1], t1.name.c_str(), t1.name.size());
+  memcpy(r1->agents[0].args[1], t1.name.c_str(), min((int)t1.name.size(), 32));
 
   // Second team
   r1->agents[1] = AgentDef("./start.sh", t2.workDir);
   r1->agents[1].startupTime = 20;
   r1->agents[1].nArgs = 2;
   r1->agents[1].args = new char*[2];
+  // arg1: host
   r1->agents[1].args[0] = new char[32];
   memset(r1->agents[1].args[0], 0, 32);
   memcpy(r1->agents[1].args[0], "127.0.0.1", 9);
+  // arg2: team name
   r1->agents[1].args[1] = new char[32];
   memset(r1->agents[1].args[1], 0, 32);
-  memcpy(r1->agents[1].args[1], t2.name.c_str(), t2.name.size());
+  memcpy(r1->agents[1].args[1], t2.name.c_str(), min((int)t2.name.size(), 32));
 
   // Initialize match data
   MatchData md;
