@@ -47,7 +47,11 @@ void Process::spawn()
   mPID = fork();
   if (!mPID)
   {
-    // Set up command arguments
+    // Create new session with new grou id, so we can kill all the
+    // processes spawned by this one.
+    setsid();
+
+    //Set up command arguments
     char** args;
     args = new char*[mArgs.size() + 2];
   
@@ -94,8 +98,9 @@ void Process::forceKill()
 {
   if (mPID)
   {
-    // Kill
-    kill(mPID, SIGKILL);
+    cout << "(Process) Killing process " << mPID << " (" << mFileName << ")" << endl;
+    // Kill (use negative PID to kill all child processes as well)
+    kill(-mPID, SIGKILL);
     // Reap
     waitpid(mPID, 0, 0);
 
