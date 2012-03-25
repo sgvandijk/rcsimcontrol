@@ -45,8 +45,9 @@ void Comm::shutdown()
 {
   if (mSocket.is_open())
   {
-    mSocket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-    mSocket.close();
+    boost::system::error_code ec;
+    mSocket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    mSocket.close(ec);
   }
 }
 

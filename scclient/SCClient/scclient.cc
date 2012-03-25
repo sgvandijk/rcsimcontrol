@@ -88,12 +88,14 @@ void SCClient::connectToSCS()
 
 void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 {
+  mCurrentRun = runDef;
+
   cout << "(SCClient) Starting run " << runDef->id << endl;
   cout << "(SCClient) Spawning simulator... ";
   // Spawn simulator
   spawnSim();
   sleep(2);
-  cout << "(SCClient) Done!" << endl;
+  cout << " Done!" << endl;
 
   // Start listening for agents
   startAgentAccept();
@@ -112,7 +114,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       sleep(1);
       mIOService.poll(ec);
     }
-    cout << "(SCClient) Done!" << endl;
+    cout << "Done!" << endl;
   }
 
   // Connect to simulator and start async reading from it
@@ -251,6 +253,8 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   mAgentComms.clear();
   
   mSCSComm.signalDone();
+
+  mCurrentRun.reset();
 }
 
 void SCClient::spawnSim()

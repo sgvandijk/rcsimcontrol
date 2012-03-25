@@ -102,6 +102,9 @@ namespace sc
     /// SimControl Server communication instance
     SCSComm mSCSComm;
     
+    /// Currently running run
+    boost::shared_ptr<RunDef> mCurrentRun;
+
     /// Simulator process
     ProcessPtr mSimProc;
     
