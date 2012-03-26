@@ -27,25 +27,33 @@ FIND_PATH(LIBCONFIGPP_INCLUDE_DIR libconfig.h++
 
 FIND_LIBRARY(LIBCONFIG_LIBRARY config
   /usr/local/lib
+  /usr/local/lib64
   /usr/lib
+  /usr/lib64
   ~/libs/lib
 )
 
 FIND_LIBRARY(LIBCONFIGPP_LIBRARY config++
   /usr/local/lib
+  /usr/local/lib64
   /usr/lib
+  /usr/lib64
   ~/libs/lib
 )
 
 FIND_LIBRARY(LIBCONFIG_STATIC_LIBRARY "libconfig${CMAKE_STATIC_LIBRARY_SUFFIX}"
   /usr/local/lib
+  /usr/local/lib64
   /usr/lib
+  /usr/lib64
   ~/libs/lib
 )
 
 FIND_LIBRARY(LIBCONFIGPP_STATIC_LIBRARY "libconfig++${CMAKE_STATIC_LIBRARY_SUFFIX}"
     /usr/local/lib
+    /usr/local/lib64
     /usr/lib
+    /usr/lib64
     ~/libs/lib
 )
 
