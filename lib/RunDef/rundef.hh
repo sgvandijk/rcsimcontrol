@@ -5,6 +5,8 @@
 #include <string>
 #include <cstring>
 
+#define SC_ARGLEN 64
+
 namespace sc
 {
   struct AgentDef
@@ -12,16 +14,16 @@ namespace sc
     AgentDef()
       : nArgs(0), args(0)
     {
-      memset(workDir, 0, 64);
-      memset(binary, 0, 64);
+      memset(workDir, 0, SC_ARGLEN);
+      memset(binary, 0, SC_ARGLEN);
     }
     
     AgentDef(std::string const& _binary,
 	     std::string const& _workDir)
       : nArgs(0), args(0)
     {
-      memset(workDir, 0, 64);
-      memset(binary, 0, 64);
+      memset(workDir, 0, SC_ARGLEN);
+      memset(binary, 0, SC_ARGLEN);
       memcpy(binary, _binary.c_str(), _binary.size());
       memcpy(workDir, _workDir.c_str(), _workDir.size());
     } 
@@ -35,10 +37,10 @@ namespace sc
     }
     
     /// Agent binary
-    char               binary[64];
+    char               binary[SC_ARGLEN];
 
     /// Working directory
-    char               workDir[64];
+    char               workDir[SC_ARGLEN];
     
     /// Number of command line arguments
     int                nArgs;

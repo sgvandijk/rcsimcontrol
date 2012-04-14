@@ -22,9 +22,9 @@ RunDef* RunDef::readFromBuf(char const* buf)
     runDef->agents[i].args = new char*[runDef->agents[i].nArgs];
     for (int j = 0; j < runDef->agents[i].nArgs; ++j)
     {
-      runDef->agents[i].args[j] = new char[32];
-      memcpy(runDef->agents[i].args[j], buf + cursor, 32);
-      cursor += 32;
+      runDef->agents[i].args[j] = new char[SC_ARGLEN];
+      memcpy(runDef->agents[i].args[j], buf + cursor, SC_ARGLEN);
+      cursor += SC_ARGLEN;
     }
   }
   return runDef;
@@ -41,8 +41,8 @@ int RunDef::writeToBuf(char* buf, RunDef const* runDef)
     cursor += sizeof(AgentDef);
     for (int j = 0; j < runDef->agents[i].nArgs; ++j)
     {
-      memcpy(buf + cursor, runDef->agents[i].args[j], 32);
-      cursor += 32;
+      memcpy(buf + cursor, runDef->agents[i].args[j], SC_ARGLEN);
+      cursor += SC_ARGLEN;
     }
   }
   return cursor;
