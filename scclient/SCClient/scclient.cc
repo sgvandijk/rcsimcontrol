@@ -311,6 +311,7 @@ void SCClient::startAgentAccept()
 void SCClient::handleAgentAccept(boost::system::error_code const& error,
 				 AgentCommPtr comm)
 {
+  cout << "(SCClient) Agent connected" << endl;
   if (error)
     return;
   

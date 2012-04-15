@@ -20,6 +20,7 @@ void AgentDataComm::connect()
 
 void AgentDataComm::sendData(string const& data)
 {
+  //cout << "(AgentDataComm) sending: " << data << endl;
   size_t len = data.size();
   size_t len2 = htonl(len);
   boost::asio::write(mSocket, boost::asio::buffer(reinterpret_cast<unsigned char*>(&len2), 4));
@@ -38,20 +39,6 @@ void AgentDataComm::handleReadMsg(const boost::system::error_code& error, size_t
   mInMsgBuf[bytes_transferred] = 0;
   MsgType msgType = *reinterpret_cast<MsgType*>(mInMsgBuf);
 
-/*  
-  if (error)
-    cout << "(AgentDataComm::handleReadMsg) Error reading message: " << error << endl;
-  
-  union {
-    MsgType type;
-    char chars[sizeof(MsgType)];
-  } u;
-  
-  mInMsgBuf[bytes_transferred] = 0;
-  memcpy(u.chars, mInMsgBuf, sizeof(MsgType));
-
-  cout << "(AgentDataComm::handleReadMsg) Got something of type: " << u.type << endl;
-*/
   cout << "(AgentDataComm::handleReadMsg) Got something of type: " << msgType << endl;
 
   switch (msgType)
