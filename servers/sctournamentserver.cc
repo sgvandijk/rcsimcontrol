@@ -84,10 +84,7 @@ void handleReady()
 	teamsList[i].lookupValue("workdir", def.workDir);
 
       if (success)
-      {
 	teams.push_back(def);
-	cout << "team: " << def.name << " " << def.workDir << endl;
-      }
       else
 	cerr << "Failed reading team " << (i + 1) << endl;
     }
@@ -151,7 +148,9 @@ void handleReady()
     t1 = teams[0];
     t2 = teams[1];
   }
-  
+
+  cout << "New match: " << t1.name << " vs " << t2.name << endl;
+
   // Create a run definition for a full game
   boost::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
@@ -163,30 +162,30 @@ void handleReady()
   // First team
   r1->agents[0] = AgentDef("./start.sh", t1.workDir);
   r1->agents[0].startupTime = 20;
-  r1->agents[0].nArgs = 2;
+  r1->agents[0].nArgs = 1;
   r1->agents[0].args = new char*[2];
   // arg1: host
   r1->agents[0].args[0] = new char[32];
   memset(r1->agents[0].args[0], 0, 32);
   memcpy(r1->agents[0].args[0], "127.0.0.1", 9);
   // arg2: team name
-  r1->agents[0].args[1] = new char[32];
-  memset(r1->agents[0].args[1], 0, 32);
-  memcpy(r1->agents[0].args[1], t1.name.c_str(), min((int)t1.name.size(), 32));
+  //r1->agents[0].args[1] = new char[32];
+  //memset(r1->agents[0].args[1], 0, 32);
+  //memcpy(r1->agents[0].args[1], t1.name.c_str(), min((int)t1.name.size(), 32));
 
   // Second team
   r1->agents[1] = AgentDef("./start.sh", t2.workDir);
   r1->agents[1].startupTime = 20;
-  r1->agents[1].nArgs = 2;
+  r1->agents[1].nArgs = 1;
   r1->agents[1].args = new char*[2];
   // arg1: host
   r1->agents[1].args[0] = new char[32];
   memset(r1->agents[1].args[0], 0, 32);
   memcpy(r1->agents[1].args[0], "127.0.0.1", 9);
   // arg2: team name
-  r1->agents[1].args[1] = new char[32];
-  memset(r1->agents[1].args[1], 0, 32);
-  memcpy(r1->agents[1].args[1], t2.name.c_str(), min((int)t2.name.size(), 32));
+  //r1->agents[1].args[1] = new char[32];
+  //memset(r1->agents[1].args[1], 0, 32);
+  //memcpy(r1->agents[1].args[1], t2.name.c_str(), min((int)t2.name.size(), 32));
 
   // Initialize match data
   MatchData md;
