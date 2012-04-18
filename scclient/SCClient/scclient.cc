@@ -287,7 +287,8 @@ void SCClient::spawnAgent(AgentDef const& agentDef)
   vector<string> args;
   for (int i = 0; i < agentDef.nArgs; ++i)
     args.push_back(agentDef.args[i]);
-    
+  
+  cout << mTeamsDirPath << " " << agentDef.workDir << " " << agentDef.binary << endl;
   ProcessPtr proc(new Process(agentDef.binary, mTeamsDirPath + agentDef.workDir, args));
   mAgentProcs.push_back(proc);
   proc->spawn();

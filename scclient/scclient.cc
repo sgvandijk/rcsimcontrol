@@ -17,7 +17,7 @@ int main(int argc, char const** argv)
   }
   string simDirPath = ".";
   string simSpawnCmd = "rcssserver3d";
-  string teamsDirPath = "./";
+  string agentsBasedirPath = "./";
 
   try
   {
@@ -26,7 +26,7 @@ int main(int argc, char const** argv)
 
     conf.lookupValue("simdirpath", simDirPath);
     conf.lookupValue("simspawncmd", simSpawnCmd);
-    conf.lookupValue("teamsdirpath", teamsDirPath);
+    conf.lookupValue("agentsbasedirpath", agentsBasedirPath);
   }
   catch (...)
   {
@@ -38,7 +38,7 @@ int main(int argc, char const** argv)
     SCClient scc(argv[1], argv[2]);
     scc.setSimDirPath(simDirPath);
     scc.setSimSpawnCmd(simSpawnCmd);
-    scc.setTeamsDirPath(teamsDirPath);
+    scc.setTeamsDirPath(agentsBasedirPath);
     scc.run();
   }
   catch(...)
