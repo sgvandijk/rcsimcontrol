@@ -81,7 +81,7 @@ void SCClient::end()
 
 void SCClient::connectToSCS()
 {
-  cout << "(SCClient) Connecting to SimControl server (" << mSCSHost << ":" << mSCSPort << ")... ";
+  cout << "(SCClient) Connecting to SimControl server (" << mSCSHost << ":" << mSCSPort << ")... " << endl;
   mSCSComm.connect(mSCSHost, mSCSPort);
   cout << "(SCClient) Done!" << endl;
 }
@@ -91,11 +91,11 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   mCurrentRun = runDef;
 
   cout << "(SCClient) Starting run " << runDef->id << endl;
-  cout << "(SCClient) Spawning simulator... ";
+  cout << "(SCClient) Spawning simulator... " << endl;
   // Spawn simulator
   spawnSim();
   sleep(2);
-  cout << " Done!" << endl;
+  cout << "(SCClient) Done!" << endl;
 
   // Start listening for agents
   startAgentAccept();
@@ -105,7 +105,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   // Spawn agents
   for (int i = 0; i < runDef->nAgents; ++i)
   {
-    cout << "(SCClient) Spawning agent " << (i + 1) << "... ";
+    cout << "(SCClient) Spawning agent " << (i + 1) << "... " << endl;
     spawnAgent(runDef->agents[i]);
 
     // Sleep until agent is started (TODO: use better (boost) timer);
@@ -114,11 +114,11 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       sleep(1);
       mIOService.poll(ec);
     }
-    cout << "Done!" << endl;
+    cout << ")SCClient) Done!" << endl;
   }
 
   // Connect to simulator and start async reading from it
-  cout << "(SCClient) Connecting to simulator... ";
+  cout << "(SCClient) Connecting to simulator... " << endl;
   RCSComm rcscomm(mIOService);
   rcscomm.connect();
   rcscomm.startRead();
@@ -305,8 +305,10 @@ void SCClient::initAcceptors()
 
 void SCClient::startAgentAccept()
 {
+  cout << "(SCClient) Starting accepting agent connections..." << endl;
   AgentCommPtr newComm = AgentCommPtr(new AgentComm(mIOService));
   mAgentAcceptor.async_accept(*newComm->getSocket(), boost::bind(&SCClient::handleAgentAccept, this, boost::asio::placeholders::error, newComm));
+  cout << "(SCClient) done!" << endl;
 }
 
 void SCClient::handleAgentAccept(boost::system::error_code const& error,
