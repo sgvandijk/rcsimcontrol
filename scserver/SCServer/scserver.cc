@@ -120,7 +120,7 @@ void SCServer::initAcceptors()
   mSCCAcceptor.bind(sccendpoint);
   mSCCAcceptor.listen();
 
-  tcp::endpoint rcmendpoint(tcp::v4(), 3201);
+  tcp::endpoint rcmendpoint(tcp::v4(), 3300);
   mRCMAcceptor.open(rcmendpoint.protocol());
   mRCMAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mRCMAcceptor.bind(rcmendpoint);

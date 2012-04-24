@@ -10,7 +10,7 @@ using namespace sc;
 using namespace std;
 using boost::asio::ip::tcp;
 
-SCClient::SCClient(string const& scshost, string const& scsport)
+SCClient::SCClient(string const& scshost, string const& scsport, int index)
   : mSimDirPath("."),
     mSimSpawnCmd("rcssserver3d"),
     mTeamsDirPath("./"),
@@ -18,6 +18,7 @@ SCClient::SCClient(string const& scshost, string const& scsport)
     mSignals(mIOService),
     mSCSHost(scshost),
     mSCSPort(scsport),
+    mIndex(index),
     mSCSComm(mIOService),
     mSimProc(),
     mAgentAcceptor(mIOService)
@@ -25,6 +26,8 @@ SCClient::SCClient(string const& scshost, string const& scsport)
   mSignals.add(SIGINT);
   mSignals.add(SIGTERM);
   mSignals.async_wait(boost::bind(&SCClient::handleSignal, this));
+  mAgentPort = 3100 + mIndex - 1;
+  mServerPort = 3200 + mIndex - 1;
 }
 
 void SCClient::run()
@@ -114,13 +117,13 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       sleep(1);
       mIOService.poll(ec);
     }
-    cout << ")SCClient) Done!" << endl;
+    cout << "(SCClient) Done!" << endl;
   }
 
   // Connect to simulator and start async reading from it
   cout << "(SCClient) Connecting to simulator... " << endl;
   RCSComm rcscomm(mIOService);
-  rcscomm.connect();
+  rcscomm.connect(mServerPort);
   rcscomm.startRead();
   cout << "(SCClient) Done!" << endl;
 
@@ -259,8 +262,25 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 
 void SCClient::spawnSim()
 {
+  for (int a = 0; a < mSimArgs.size(); ++a)
+  {
+    if (mSimArgs[a] == string("%ap"))
+    {
+      char agentPortArg[6];
+      sprintf(agentPortArg, "%d", mAgentPort);
+      mSimArgs[a] = agentPortArg;
+    }
+    if (mSimArgs[a] == string("%sp"))
+    {
+      char serverPortArg[6];
+      sprintf(serverPortArg, "%d", mServerPort);
+      mSimArgs[a] = serverPortArg;
+    }
+
+  }
+
   if (!mSimProc)
-    mSimProc = ProcessPtr(new Process(mSimSpawnCmd, mSimDirPath));
+    mSimProc = ProcessPtr(new Process(mSimSpawnCmd, mSimDirPath, mSimArgs));
     
   mSimProc->spawn();
 }
@@ -286,7 +306,23 @@ void SCClient::spawnAgent(AgentDef const& agentDef)
 {
   vector<string> args;
   for (int i = 0; i < agentDef.nArgs; ++i)
-    args.push_back(agentDef.args[i]);
+  {
+    if (agentDef.args[i] == string("%ap"))
+    {
+      char agentPortArg[6];
+      sprintf(agentPortArg, "%d", mAgentPort);
+      args.push_back(agentPortArg);
+    }
+    else if (agentDef.args[i] == string("%sp"))
+    {
+      char serverPortArg[6];
+      sprintf(serverPortArg, "%d", mServerPort);
+      args.push_back(serverPortArg);
+    }
+    else
+      args.push_back(agentDef.args[i]);
+
+  }
   
   cout << mTeamsDirPath << " " << agentDef.workDir << " " << agentDef.binary << endl;
   ProcessPtr proc(new Process(agentDef.binary, mTeamsDirPath + agentDef.workDir, args));

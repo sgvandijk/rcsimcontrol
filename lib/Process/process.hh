@@ -11,6 +11,7 @@ namespace sc
   class Process
   {
   public:
+    Process();
     Process(std::string const& fileName);
     Process(std::string const& fileName, std::string const& workDir);
     Process(std::string const& fileName, std::vector<std::string> const& args);
@@ -18,8 +19,11 @@ namespace sc
     
     /// Spawn this process
     void spawn();
-    
-    /// Kill this process forcefully
+
+    // Kill this process (send SIGTERM), and any possible subprocesses
+    void kill();
+
+    /// Kill this process forcefully (send SIGKILL), and any possible subprocesses
     void forceKill();
     
   private:

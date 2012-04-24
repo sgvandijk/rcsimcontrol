@@ -12,33 +12,40 @@
 using namespace sc;
 using namespace std;
 
+Process::Process()
+  : mPID(0),
+    mWorkDir("."),
+    mFileName("")
+{
+}
+
 Process::Process(string const& fileName)
-: mPID(0),
-  mWorkDir("."),
-  mFileName(fileName)
+  : mPID(0),
+    mWorkDir("."),
+    mFileName(fileName)
 {
 }
 
 Process::Process(string const& fileName, std::string const& workDir)
-: mPID(0),
-  mWorkDir(workDir),
-  mFileName(fileName)
+  : mPID(0),
+    mWorkDir(workDir),
+    mFileName(fileName)
 {
 }
 
 Process::Process(string const& fileName, vector<string> const& args)
-: mPID(0),
-  mWorkDir("."),
-  mFileName(fileName),
-  mArgs(args)
+  : mPID(0),
+    mWorkDir("."),
+    mFileName(fileName),
+    mArgs(args)
 {
 }
 
 Process::Process(string const& fileName, std::string const& workDir, vector<string> const& args)
-: mPID(0),
-  mWorkDir(workDir),
-  mFileName(fileName),
-  mArgs(args)
+  : mPID(0),
+    mWorkDir(workDir),
+    mFileName(fileName),
+    mArgs(args)
 {
 }
 
@@ -94,13 +101,27 @@ void Process::spawn()
   }
 }
 
+void Process::kill()
+{
+  if (mPID)
+  {
+    cout << "(Process) Killing process " << mPID << " (" << mFileName << ")" << endl;
+    // Kill (use negative PID to kill all child processes as well)
+    ::kill(-mPID, SIGTERM);
+    // Reap
+    waitpid(mPID, 0, 0);
+
+    mPID = 0;
+  }
+}
+
 void Process::forceKill()
 {
   if (mPID)
   {
     cout << "(Process) Killing process " << mPID << " (" << mFileName << ")" << endl;
     // Kill (use negative PID to kill all child processes as well)
-    kill(-mPID, SIGKILL);
+    ::kill(-mPID, SIGKILL);
     // Reap
     waitpid(mPID, 0, 0);
 

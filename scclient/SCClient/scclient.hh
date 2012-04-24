@@ -24,13 +24,16 @@ namespace sc
   // Public methods
   public:
     /// Constructor
-    SCClient(std::string const& scshost, std::string const& scsport);
+    SCClient(std::string const& scshost, std::string const& scsport, int index);
     
     /// Set the simulator working directory
     void setSimDirPath(std::string const& path);
     
     /// Set the command to use to spawn the simulator
     void setSimSpawnCmd(std::string const& cmd);
+
+    /// Set simulator run time arguments
+    void setSimArgs(std::vector<std::string> const& args);
 
     /// Set base directory where to find the agents
     void setTeamsDirPath(std::string const& teamsDirPath);
@@ -84,6 +87,9 @@ namespace sc
     /// Simulator spawn command
     std::string mSimSpawnCmd;
 
+    /// Arguments to pass on to simulator
+    std::vector<std::string> mSimArgs;
+
     /// Base directory for binaries
     std::string mTeamsDirPath;
 
@@ -98,7 +104,16 @@ namespace sc
     
     /// SimControl Server port
     std::string mSCSPort;
+
+    /// Index of this client
+    int mIndex;
+
+    /// Simulator's agent port
+    int mAgentPort;
     
+    /// Simulator's server port
+    int mServerPort;
+
     /// SimControl Server communication instance
     SCSComm mSCSComm;
     
@@ -136,6 +151,11 @@ namespace sc
   inline void SCClient::setSimSpawnCmd(std::string const& cmd)
   {
     mSimSpawnCmd = cmd;
+  }
+
+  inline void SCClient::setSimArgs(std::vector<std::string> const& args)
+  {
+    mSimArgs = args;
   }
 }
 

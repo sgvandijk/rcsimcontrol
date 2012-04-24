@@ -33,9 +33,12 @@ RCSComm::RCSComm(boost::asio::io_service& ioservice)
   mPlayModeMap["GameOver"] = PM_GAME_OVER;
 }
 
-void RCSComm::connect()
+void RCSComm::connect(int serverPort)
 {
-  Comm::connect("localhost", "3200");
+  char serverPortStr[6];
+  sprintf(serverPortStr, "%d", serverPort);
+  cout << "(RCSComm) Connecting to RC (port: " << serverPortStr << ")" << endl;
+  Comm::connect("localhost", serverPortStr);
 }
 
 void RCSComm::kickOff(string const& side)

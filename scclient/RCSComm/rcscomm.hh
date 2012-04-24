@@ -43,7 +43,7 @@ namespace sc
     RCSComm(boost::asio::io_service& ioservice);
     
     /// Connect to RCSSServer
-    void connect();
+    void connect(int serverPort = 3200);
   
     /// Perform kick-off
     void kickOff(std::string const& side = "Left");

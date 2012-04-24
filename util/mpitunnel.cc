@@ -32,6 +32,8 @@
 
 #include <mpi.h>
 
+#include "../lib/Process/process.hh"
+
 //----------------------------------------------------------------------
 // MPI messages
 enum MPI_MSG_TYPE {MPI_DATA=1, MPI_CONNECT, MPI_CONNECT_ACK, 
@@ -79,6 +81,7 @@ int myrank;
 std::vector<Connection> connectionsPending;
 std::vector<Connection> connections;
 std::vector<ListenPort> listeningPorts;
+Process spawnedProcess;
 int connectionId = 0;
 
 //======================================================================
@@ -340,6 +343,11 @@ void mpiHandleData(int rank)
 //avoid SIGPIPE crashes, errors are handled after writing to socket
 void brokenpipe_handler(int) {} 
 
+void termination_handler(int)
+{
+  printf("MPITunnel: terminated. Killing process\n");
+  spawnedProcess.kill();
+}
 
 int main(int argc, char** argv)
 {
@@ -351,7 +359,9 @@ int main(int argc, char** argv)
   }
   
   signal(SIGPIPE, brokenpipe_handler);
-  
+  signal(SIGHUP, termination_handler);
+  signal(SIGTERM, termination_handler);
+
   //init MPI
   int np;
   MPI_Status status;
@@ -363,9 +373,8 @@ int main(int argc, char** argv)
   if(myrank == 0)
   {
     printf("MPITunnel: Starting server  %s\n", argv[1]);
-    char cmd[1024];
-    sprintf(cmd, "%s &", argv[1]);
-    system(cmd);
+    spawnedProcess = Process(argv[1]);
+    spawnedProcess.spawn();
   }
   else
   {
@@ -383,8 +392,8 @@ int main(int argc, char** argv)
     printf("MPITunnel: Starting client  %s\n", argv[2]);
     char cmd[1024];
     sprintf(cmd, argv[2], myrank);
-    strcat(cmd, " &");
-    system(cmd);
+    spawnedProcess = Process(cmd);
+    spawnedProcess.spawn();
   }
 
   const int buffersize = 102400;

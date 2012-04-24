@@ -12,12 +12,13 @@ int main(int argc, char const** argv)
 {
   if (argc < 3)
   {
-    cout << "Usage: " << argv[0] << " <hostname> <port>" << endl;
+    cout << "Usage: " << argv[0] << " <hostname> <port> [index]" << endl;
     exit(-1);
   }
   string simDirPath = ".";
   string simSpawnCmd = "rcssserver3d";
   string agentsBasedirPath = "./";
+  vector<string> simArgs;
 
   try
   {
@@ -27,22 +28,23 @@ int main(int argc, char const** argv)
     conf.lookupValue("simdirpath", simDirPath);
     conf.lookupValue("simspawncmd", simSpawnCmd);
     conf.lookupValue("agentsbasedirpath", agentsBasedirPath);
+
+    
+    Setting& argsSetting = conf.lookup("simargs");
+    for (int i = 0; i < argsSetting.getLength(); ++i)
+      simArgs.push_back(argsSetting[i]);
   }
   catch (...)
   {
     cerr << "Error reading client.cfg!" << endl;
   }
 
-  try
-  {
-    SCClient scc(argv[1], argv[2]);
-    scc.setSimDirPath(simDirPath);
-    scc.setSimSpawnCmd(simSpawnCmd);
-    scc.setTeamsDirPath(agentsBasedirPath);
-    scc.run();
-  }
-  catch(...)
-  {
-    cerr << "Error running SCClient!" << endl;
-  }
+  int idx = argc == 4 ? atoi(argv[3]) : 1;
+
+  SCClient scc(argv[1], argv[2], idx);
+  scc.setSimDirPath(simDirPath);
+  scc.setSimSpawnCmd(simSpawnCmd);
+  scc.setSimArgs(simArgs);
+  scc.setTeamsDirPath(agentsBasedirPath);
+  scc.run();
 }
