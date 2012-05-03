@@ -319,6 +319,12 @@ void SCClient::spawnAgent(AgentDef const& agentDef)
       sprintf(serverPortArg, "%d", mServerPort);
       args.push_back(serverPortArg);
     }
+    else if (agentDef.args[i] == string("%scp"))
+    {
+      char scPortArg[6];
+      sprintf(scPortArg, "%d", 15124 + mIndex - 1);
+      args.push_back(scPortArg);
+    }
     else
       args.push_back(agentDef.args[i]);
 
@@ -332,7 +338,7 @@ void SCClient::spawnAgent(AgentDef const& agentDef)
 
 void SCClient::initAcceptors()
 {
-  tcp::endpoint sccendpoint(tcp::v4(), 15124);
+  tcp::endpoint sccendpoint(tcp::v4(), 15124 + mIndex - 1);
   mAgentAcceptor.open(sccendpoint.protocol());
   mAgentAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mAgentAcceptor.bind(sccendpoint);
