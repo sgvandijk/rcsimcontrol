@@ -8,18 +8,45 @@ using namespace sc;
 using namespace std;
 using namespace libconfig;
 
+string simDirPath;
+string simSpawnCmd;
+string agentsBasedirPath;
+vector<string> simArgs;
+
+void printConf()
+{
+  cout << "simdirpath: \"" << simDirPath << "\";" << endl;
+  cout << "simspawncmd: \"" << simSpawnCmd << "\";" << endl;
+  cout << "agentsbasedirpath: \"" << agentsBasedirPath << "\";" << endl;
+  cout << "simargs: [";
+  if (simArgs.size() > 0)
+  {
+    cout << "\"" << simArgs[0] << "\"";
+    for (int i = 1; i < simArgs.size(); ++i)
+      cout << ", \"" << simArgs[i] << "\"";
+  }
+  cout << "];" << endl;
+}
+
 int main(int argc, char const** argv)
 {
+  simDirPath = ".";
+  simSpawnCmd = "rcssserver3d";
+  agentsBasedirPath = "./";
+
+  if (argc == 2 && string(argv[1]) == "--print-conf")
+  {
+    printConf();
+    return 0;
+  }
+
   if (argc < 3)
   {
     cout << "Usage: " << argv[0] << " <hostname> <port> [index]" << endl;
-    exit(-1);
+    return -1;
   }
-  string simDirPath = ".";
-  string simSpawnCmd = "rcssserver3d";
-  string agentsBasedirPath = "./";
-  vector<string> simArgs;
 
+  vector<string> simArgs;
   try
   {
     Config conf;

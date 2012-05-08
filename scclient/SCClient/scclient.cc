@@ -97,7 +97,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   cout << "(SCClient) Spawning simulator... " << endl;
   // Spawn simulator
   spawnSim();
-  sleep(2);
+  usleep(5e5);
   cout << "(SCClient) Done!" << endl;
 
   // Start listening for agents
@@ -111,10 +111,10 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     cout << "(SCClient) Spawning agent " << (i + 1) << "... " << endl;
     spawnAgent(runDef->agents[i]);
 
-    // Sleep until agent is started (TODO: use better (boost) timer);
-    for (double s = 0; s < runDef->agents[i].startupTime; s += 1)
+    // Sleep until agent is started (TODO: use better (boost?) timer);
+    for (double s = 0; s < runDef->agents[i].startupTime; s += 0.1)
     {
-      sleep(1);
+      usleep(1e5);
       mIOService.poll(ec);
     }
     cout << "(SCClient) Done!" << endl;
