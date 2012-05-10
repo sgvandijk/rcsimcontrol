@@ -57,8 +57,17 @@ void SCClient::run()
       
       if (mSCSComm.hasNewRun())
       {
-        doRun(mSCSComm.getRun());
+	try
+	{
+	  doRun(mSCSComm.getRun());
+	}
+	catch (...)
+	{
+	  cout << "(SCClient) Error doing run!" << endl;
+	}
+
         doneRun = true;
+	mSCSComm.signalDone();
       }
     }
   }
@@ -255,8 +264,6 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
   
   mAgentComms.clear();
   
-  mSCSComm.signalDone();
-
   mCurrentRun.reset();
 }
 
