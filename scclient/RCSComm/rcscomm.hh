@@ -102,6 +102,8 @@ namespace sc
     int mScoreLeft;
     int mScoreRight;
   };
+
+  typedef boost::shared_ptr<RCSComm> RCSCommPtr;
 }
 
 #endif

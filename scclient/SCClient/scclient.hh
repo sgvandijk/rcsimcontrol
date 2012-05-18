@@ -77,6 +77,9 @@ namespace sc
     /// Handle signals received from system
     void handleSignal();
 
+    /// Cleanup all connections etc
+    void cleanup();
+
   //------------------------------------------------------------
   // Private members
   private:
@@ -128,7 +131,10 @@ namespace sc
 
     /// Agent Connection acceptor
     boost::asio::ip::tcp::acceptor mAgentAcceptor;
-    
+
+    /// Connection with simulator
+    RCSCommPtr mRCSComm;
+
     /// List of connections with agents
     std::list<AgentCommPtr> mAgentComms;
     
