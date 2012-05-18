@@ -64,6 +64,7 @@ void SCClient::run()
 	catch (...)
 	{
 	  cout << "(SCClient) Error doing run!" << endl;
+	  cleanup();
 	}
 
         doneRun = true;
@@ -73,20 +74,39 @@ void SCClient::run()
   }
 }
 
+void SCClient::cleanup()
+{
+  // Shutdown Agent Coms
+  for (std::list<AgentCommPtr>::iterator iter = mAgentComms.begin();
+       iter != mAgentComms.end();
+       ++iter)
+   (*iter)->shutdown();
+  
+  // Shutdown RCS Comm
+  mRCSComm->shutdown();
+  
+  // Kill all agent processes
+  forceKillAgents();
+  
+  // Kill simulator process
+  forceKillSim();
+  
+  // Stop accepting connections from agents
+  mAgentAcceptor.cancel();
+  
+  // Handle remaining events caused by shutdown
+  mIOService.poll();
+  
+  mAgentComms.clear();
+  
+  mCurrentRun.reset();
+}
+
 void SCClient::end()
 {
   cout << "(SCClient) Closing and cleaning up" << endl;
 
-  // Kill everything
-  forceKillAgents();
-  forceKillSim();
-
-  // Disconnect from Sim Control server
-  mSCSComm.shutdown();
-
-  // Stop accepting connections
-  mAgentAcceptor.cancel();
-  mAgentAcceptor.close();
+  cleanup();
 
   mIOService.stop();
 }
@@ -131,9 +151,9 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
 
   // Connect to simulator and start async reading from it
   cout << "(SCClient) Connecting to simulator... " << endl;
-  RCSComm rcscomm(mIOService);
-  rcscomm.connect(mServerPort);
-  rcscomm.startRead();
+  mRCSComm = RCSCommPtr(new RCSComm(mIOService));
+  mRCSComm->connect(mServerPort);
+  mRCSComm->startRead();
   cout << "(SCClient) Done!" << endl;
 
   bool running = true;
@@ -162,14 +182,14 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
     }
     
     // Check if a new predicate arrived from the simulator
-    if (rcscomm.newPred())
+    if (mRCSComm->newPred())
     {
-      switch(rcscomm.getPlayMode())
+      switch(mRCSComm->getPlayMode())
       {
       // Do the kickoff
       case RCSComm::PM_BEFORE_KICKOFF:
         if (firstHalf)
-          rcscomm.kickOff("Left");
+          mRCSComm->kickOff("Left");
         else
         {
           if (firstHalfOverTime.tv_sec == 0)
@@ -180,7 +200,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
             gettimeofday(&now, 0);
             double dt = now.tv_sec - firstHalfOverTime.tv_sec;
             if (dt > 3)
-              rcscomm.kickOff("Right");
+              mRCSComm->kickOff("Right");
           }
         }
         break;
@@ -199,22 +219,22 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
       }
       
       // Forward score to SC Server
-      if (rcscomm.newScore())
-        mSCSComm.sendScore(rcscomm.getScoreLeft(), rcscomm.getScoreRight());
+      if (mRCSComm->newScore())
+        mSCSComm.sendScore(mRCSComm->getScoreLeft(), mRCSComm->getScoreRight());
       
       // Check if time ran out if we are running in timed mode
       if (runDef->termCond == RunDef::TC_TIMED &&
-	  rcscomm.getGameTime() > runDef->termTime)
+	  mRCSComm->getGameTime() > runDef->termTime)
         running = false;
       
       // If we just got a new request to pass monitor info to the server
       // request a new full state frame from the simulator
       if (mSCSComm.newMonDataRequest())
-        rcscomm.requestFullState();
+        mRCSComm->requestFullState();
       else
         // Send on monitordata
         if (mSCSComm.monDataRequested())
-          mSCSComm.sendMonData(rcscomm.getPred()->toString());
+          mSCSComm.sendMonData(mRCSComm->getPred()->toString());
     }
     
     //Forward any agent data to the Sim Control Server
@@ -248,7 +268,7 @@ void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
    (*iter)->shutdown();
   
   // Shutdown RCS Comm
-  rcscomm.shutdown();
+  mRCSComm->shutdown();
   
   // Kill all agent processes
   forceKillAgents();
