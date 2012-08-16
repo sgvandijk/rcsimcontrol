@@ -3,6 +3,10 @@ project (RCSimControl)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
 
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Choose whether to build a shared library")
+set(BUILD_CLIENT ON CACHE BOOL "Choose whether to build the SCClient")
+set(BUILD_SERVERS ON CACHE BOOL "Choose whether to build example servers")
+
 find_package(Threads REQUIRED)
 find_package(Boost 1.47 REQUIRED COMPONENTS thread system signals)
 find_package(LibConfig REQUIRED)
@@ -10,7 +14,7 @@ find_package(LibConfig REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS} ${LIBCONFIG_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
-add_library(rcsimcontrol SHARED
+add_library(rcsimcontrol
 lib/Path/init.cc
 lib/Path/path.cc
 lib/RunDef/rundef.cc
@@ -40,7 +44,12 @@ scserver/SCCComm/scccomm.cc
 scserver/SCServer/scserver.cc
 )
 
-install(TARGETS rcsimcontrol LIBRARY DESTINATION lib)
+install(TARGETS rcsimcontrol DESTINATION lib)
 
-add_subdirectory(scclient)
-add_subdirectory(servers)
+IF(BUILD_CLIENT)
+  add_subdirectory(scclient)
+ENDIF(BUILD_CLIENT)
+
+IF(BUILD_SERVERS)
+  add_subdirectory(servers)
+ENDIF(BUILD_SERVERS)
