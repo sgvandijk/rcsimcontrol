@@ -83,7 +83,7 @@ namespace sc
     static int writeToBuf(char* buf, RunDef const* runDef);
   };
 
-  typedef boost::shared_ptr<RunDef> RunDefPtr;
+  typedef std::shared_ptr<RunDef> RunDefPtr;
 }
 
 #endif // SC_RUNDEF_HH_

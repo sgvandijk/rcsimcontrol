@@ -4,7 +4,7 @@
 
 #define IDXPT(x) "(" << x/(256*4) << "/" << (x/256)%4 << ")"
 
-boost::shared_ptr<Predicate> Parser::parse(unsigned char const *data, unsigned len)
+std::shared_ptr<Predicate> Parser::parse(unsigned char const *data, unsigned len)
 {
   // Lexer iteration.
   unsigned char const *lexSrc = data;
@@ -22,7 +22,7 @@ boost::shared_ptr<Predicate> Parser::parse(unsigned char const *data, unsigned l
   PredicateStack stck;
 
   // Initial stack value.
-  boost::shared_ptr<Predicate> pred(new Predicate(Predicate::type_list));
+  std::shared_ptr<Predicate> pred(new Predicate(Predicate::type_list));
   stck.push(pred);
 
   while (true) {
@@ -50,7 +50,7 @@ boost::shared_ptr<Predicate> Parser::parse(unsigned char const *data, unsigned l
       pCurrentState = reinterpret_cast<ParseEntry*>(pCurrentState->value) + *(++lexI);
 
       // Push new predicate.
-      boost::shared_ptr<Predicate> pred(new Predicate(string(lexToken,lexTokenLength),Predicate::type_node));
+      std::shared_ptr<Predicate> pred(new Predicate(string(lexToken,lexTokenLength),Predicate::type_node));
       stck.push(stck.top()->push(pred));
 
       // Update the lexer tokens.
@@ -65,7 +65,7 @@ boost::shared_ptr<Predicate> Parser::parse(unsigned char const *data, unsigned l
       pCurrentState = reinterpret_cast<ParseEntry*>(pCurrentState->value) + *(++lexI);
 
       // Append predicate.
-      boost::shared_ptr<Predicate> pred(new Predicate(string(lexToken,lexTokenLength),Predicate::type_leaf));
+      std::shared_ptr<Predicate> pred(new Predicate(string(lexToken,lexTokenLength),Predicate::type_leaf));
       stck.top()->push(pred);
 
       lexToken = reinterpret_cast<char const *>(lexI);

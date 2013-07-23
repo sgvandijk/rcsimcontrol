@@ -66,7 +66,7 @@ namespace sc {
   public:
 
     class Node;
-    typedef boost::shared_ptr<Node> NodePtr;
+    typedef std::shared_ptr<Node> NodePtr;
     
     /**
      *  Inherit from this node to create specific tree nodes.
@@ -79,7 +79,7 @@ namespace sc {
     public:
 
       /// A vector of Nodes
-      typedef std::vector< boost::shared_ptr<Node> > NodeVector;
+      typedef std::vector< std::shared_ptr<Node> > NodeVector;
 
       typedef NodeVector::const_iterator const_iterator;
       typedef NodeVector::iterator iterator;

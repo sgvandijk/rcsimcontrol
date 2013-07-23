@@ -152,7 +152,7 @@ void handleReady()
   cout << "New match: " << t1.name << " vs " << t2.name << endl;
 
   // Create a run definition for a full game
-  boost::shared_ptr<RunDef> r1(new RunDef());
+  std::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
   r1->id = runCnt;
   r1->termCond = RunDef::TC_FULLGAME;

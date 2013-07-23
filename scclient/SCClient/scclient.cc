@@ -118,7 +118,7 @@ void SCClient::connectToSCS()
   cout << "(SCClient) Done!" << endl;
 }
 
-void SCClient::doRun(boost::shared_ptr<RunDef> runDef)
+void SCClient::doRun(std::shared_ptr<RunDef> runDef)
 {
   mCurrentRun = runDef;
 

@@ -101,9 +101,9 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
     AST::NodePtr pmNode = mPred->findDeep("play_modes");
     if (pmNode)
     {
-      PredicatePtr pmPred = boost::shared_static_cast<Predicate>(pmNode);
+      PredicatePtr pmPred = std::static_pointer_cast<Predicate>(pmNode);
       for (Predicate::iterator iter = pmPred->begin(); iter != pmPred->end(); ++iter)
-        mPlayModeList.push_back(boost::shared_static_cast<Predicate>(*iter)->getStr());
+        mPlayModeList.push_back(std::static_pointer_cast<Predicate>(*iter)->getStr());
       //cout << "(RCSComm) Have play modes: " << mPlayModeList.size() << endl;
     }
   }
@@ -113,7 +113,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   node = mPred->findDeep("time");
   if (node)
   {
-    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    PredicatePtr pred = std::static_pointer_cast<Predicate>(node);
     mGameTime = pred->get(0)->getDouble();
   }
 
@@ -121,7 +121,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   node = mPred->findDeep("play_mode");
   if (node)
   {
-    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    PredicatePtr pred = std::static_pointer_cast<Predicate>(node);
     mPlayMode = mPlayModeMap[mPlayModeList[pred->get(0)->getInt()]];
   }
 
@@ -129,14 +129,14 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   node = mPred->findDeep("score_left");
   if (node)
   {
-    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    PredicatePtr pred = std::static_pointer_cast<Predicate>(node);
     mScoreLeft = pred->get(0)->getInt();
     mNewScore = true;
   }
   node = mPred->findDeep("score_right");
   if (node)
   {
-    PredicatePtr pred = boost::shared_static_cast<Predicate>(node);
+    PredicatePtr pred = std::static_pointer_cast<Predicate>(node);
     mScoreRight = pred->get(0)->getInt();
     mNewScore = true;
   }
@@ -146,7 +146,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   {
     cout << "Ball node!" << endl;
     for (AST::Node::iterator iter = node->begin(); iter != node->end(); ++iter)
-      cout << boost::shared_static_cast<Predicate>(*iter)->toString() << endl;
+      cout << std::static_pointer_cast<Predicate>(*iter)->toString() << endl;
       
     AST::NodePtr sltNode = node->find("SLT");
     if (sltNode)
@@ -154,7 +154,7 @@ void RCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
       cout << "Ball SLT node!" << endl;
       double m[16];
       for (unsigned i = 0; i < 16; ++i)
-        m[i] = boost::shared_static_cast<Predicate>(sltNode->getChild(i))->getDouble();
+        m[i] = std::static_pointer_cast<Predicate>(sltNode->getChild(i))->getDouble();
       mBallPos[0] = m[3];
       mBallPos[1] = m[7];
       mBallPos[2] = m[11];

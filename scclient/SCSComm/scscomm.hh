@@ -18,7 +18,7 @@ namespace sc
     bool hasNewRun();
     
     /// Get the latest run definition
-    boost::shared_ptr<RunDef> getRun();
+    std::shared_ptr<RunDef> getRun();
     
     /// Signal to SimControl Server that client is ready for a new run
     bool signalReady();
@@ -72,7 +72,7 @@ namespace sc
     
     bool mNewAgentMessage;
     
-    boost::shared_ptr<RunDef> mRunDef;
+    std::shared_ptr<RunDef> mRunDef;
     
     std::string mAgentMessage;
   };

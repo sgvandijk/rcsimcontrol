@@ -11,7 +11,7 @@ SCCComm::SCCComm(boost::asio::io_service& ioservice)
 {
 }
 
-void SCCComm::sendRun(boost::shared_ptr<RunDef> runDef)
+void SCCComm::sendRun(std::shared_ptr<RunDef> runDef)
 {
   mReady = false;
   mCurrentRun = runDef;

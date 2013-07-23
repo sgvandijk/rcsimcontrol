@@ -46,6 +46,8 @@ scserver/SCServer/scserver.cc
 
 install(TARGETS rcsimcontrol DESTINATION lib)
 
+set(CMAKE_CXX_FLAGS "-std=c++0x")
+
 IF(BUILD_CLIENT)
   add_subdirectory(scclient)
 ENDIF(BUILD_CLIENT)

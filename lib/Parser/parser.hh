@@ -46,7 +46,7 @@
 
 namespace sc {
 
-  typedef std::stack< boost::shared_ptr<Predicate> > PredicateStack;
+  typedef std::stack< std::shared_ptr<Predicate> > PredicateStack;
 
   /**\brief Communication parser
    * 
@@ -123,8 +123,8 @@ namespace sc {
      *  @returns the parsed message.
      *  @throws runtime_error
      */
-    boost::shared_ptr<Predicate> parse(unsigned char const *data, unsigned len);
-    boost::shared_ptr<Predicate> parse(std::string const &msg)
+    std::shared_ptr<Predicate> parse(unsigned char const *data, unsigned len);
+    std::shared_ptr<Predicate> parse(std::string const &msg)
     { return parse(reinterpret_cast<unsigned char const*>(msg.c_str()),msg.length()); }
 
 
@@ -133,7 +133,7 @@ namespace sc {
      *  the message, which can be send to the
      *  simulation server.
      */
-    std::string generate(boost::shared_ptr<Predicate> const &_pred);
+    std::string generate(std::shared_ptr<Predicate> const &_pred);
 
   };
 

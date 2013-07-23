@@ -28,7 +28,7 @@ namespace sc
     }
     
     /// Send the client a new run
-    void sendRun(boost::shared_ptr<RunDef> runDef);
+    void sendRun(std::shared_ptr<RunDef> runDef);
   
     /// Request monitor data from the client
     void requestMonData();
@@ -62,7 +62,7 @@ namespace sc
     void sendMessageToAgents(std::string const& msg);
     
     /// Get the description of the current run being performed
-    boost::shared_ptr<RunDef> getCurrentRun() const { return mCurrentRun; }
+    std::shared_ptr<RunDef> getCurrentRun() const { return mCurrentRun; }
     
     /// Whether there is a new score
     bool newScore()
@@ -79,7 +79,7 @@ namespace sc
   private:
     bool mReady;
     
-    boost::shared_ptr<RunDef> mCurrentRun;
+    std::shared_ptr<RunDef> mCurrentRun;
     
     bool mNewMonData;
     std::string mMonData;
@@ -96,7 +96,7 @@ namespace sc
     virtual void handleReadMsg(boost::system::error_code const& error, std::size_t bytes_transferred);
   };
 
-  typedef boost::shared_ptr<SCCComm> SCCCommPtr;
+  typedef std::shared_ptr<SCCComm> SCCCommPtr;
 }
 
 

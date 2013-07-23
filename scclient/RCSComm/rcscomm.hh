@@ -88,7 +88,7 @@ namespace sc
     PortableParser mParser;
     
     bool mNewPred;
-    boost::shared_ptr<Predicate> mPred;
+    std::shared_ptr<Predicate> mPred;
 
     std::vector<std::string> mPlayModeList;
     std::map<std::string, PlayMode> mPlayModeMap;
@@ -103,7 +103,7 @@ namespace sc
     int mScoreRight;
   };
 
-  typedef boost::shared_ptr<RCSComm> RCSCommPtr;
+  typedef std::shared_ptr<RCSComm> RCSCommPtr;
 }
 
 #endif

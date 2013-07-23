@@ -3,14 +3,14 @@
 /**
  * \TODO: This can be optimized a very lot!!
  */
-boost::shared_ptr<AST::Node> AST::Node::select(Path const &select) const
+std::shared_ptr<AST::Node> AST::Node::select(Path const &select) const
 {
   NodeVector search_space;
 
   Path p = select;
 
   if (p.path.empty())
-    return boost::shared_ptr<AST::Node>();
+    return std::shared_ptr<AST::Node>();
 
   if (p.path.front() == "/")
   {
@@ -18,7 +18,7 @@ boost::shared_ptr<AST::Node> AST::Node::select(Path const &select) const
     // the top level of the tree.
     p.path.pop_front();
     if (p.path.empty())
-      return (d_nodes.empty() ? boost::shared_ptr<AST::Node>() : d_nodes.front());
+      return (d_nodes.empty() ? std::shared_ptr<AST::Node>() : d_nodes.front());
     else
       findAll(search_space, p.path.front());
   }
@@ -35,5 +35,5 @@ boost::shared_ptr<AST::Node> AST::Node::select(Path const &select) const
     else
       return (*i)->select(p);
 
-  return boost::shared_ptr<AST::Node>();
+  return std::shared_ptr<AST::Node>();
 }

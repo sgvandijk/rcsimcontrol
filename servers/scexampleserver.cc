@@ -35,7 +35,7 @@ int main(int argc, char const** argv)
   cnt = 0;
   // Make dummy run
   unsigned nAgents = 1;
-  boost::shared_ptr<RunDef> r1(new RunDef());
+  std::shared_ptr<RunDef> r1(new RunDef());
   r1->id = 1;
   r1->termCond = RunDef::TC_TIMED;
   r1->termTime = 20;

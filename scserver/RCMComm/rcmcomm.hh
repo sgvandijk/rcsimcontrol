@@ -22,7 +22,7 @@ namespace sc
     
   };
   
-  typedef boost::shared_ptr<RCMComm> RCMCommPtr;
+  typedef std::shared_ptr<RCMComm> RCMCommPtr;
 }
 
 

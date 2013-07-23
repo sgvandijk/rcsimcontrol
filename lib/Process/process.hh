@@ -36,7 +36,7 @@ namespace sc
     std::vector<std::string> mArgs;
   };
   
-  typedef boost::shared_ptr<Process> ProcessPtr;
+  typedef std::shared_ptr<Process> ProcessPtr;
 }
 
 #endif

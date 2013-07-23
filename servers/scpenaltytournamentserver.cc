@@ -56,7 +56,7 @@ void handleReady()
   // Select random teams
   random_shuffle(teams.begin(), teams.end());
 
-  boost::shared_ptr<RunDef> r1(new RunDef());
+  std::shared_ptr<RunDef> r1(new RunDef());
   runCnt++;
   r1->id = runCnt;
   r1->termCond = RunDef::TC_TIMED;

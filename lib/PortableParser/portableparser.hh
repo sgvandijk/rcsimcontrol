@@ -90,7 +90,7 @@ namespace sc {
       d_done = false;
       d_pCurrentState = s_initializerState;
       d_stck = PredicateStack();
-      boost::shared_ptr<Predicate> pred(new Predicate(Predicate::type_list));
+      std::shared_ptr<Predicate> pred(new Predicate(Predicate::type_list));
       d_stck.push(pred);
     }
 
@@ -114,7 +114,7 @@ namespace sc {
 
       case Parser::PushPred:
       {
-        boost::shared_ptr<Predicate> pred(new Predicate(d_tokenStr,Predicate::type_node));
+        std::shared_ptr<Predicate> pred(new Predicate(d_tokenStr,Predicate::type_node));
         d_stck.push(d_stck.top()->push(pred));
         d_tokenStr.clear();
         return false;
@@ -122,7 +122,7 @@ namespace sc {
 
       case Parser::AddToPred:
       {
-        boost::shared_ptr<Predicate> pred(new Predicate(d_tokenStr,Predicate::type_node));
+        std::shared_ptr<Predicate> pred(new Predicate(d_tokenStr,Predicate::type_node));
         d_stck.top()->push(pred);
         d_tokenStr.clear();
         return false;
@@ -195,7 +195,7 @@ namespace sc {
      *
      *  @returns the parsed predicate.
      */
-    inline boost::shared_ptr<Predicate> parseLine(std::string const &data)
+    inline std::shared_ptr<Predicate> parseLine(std::string const &data)
     {
       unsigned count = 0;
       while (count < data.length()) {
@@ -224,7 +224,7 @@ namespace sc {
     /**
      *  @returns the parsed predicate.
      */
-    boost::shared_ptr<Predicate> getPredicate() const
+    std::shared_ptr<Predicate> getPredicate() const
     {
       return d_stck.top();
     }

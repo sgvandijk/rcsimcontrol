@@ -35,7 +35,7 @@ namespace sc
     std::string mData;
   };
   
-  typedef boost::shared_ptr<AgentComm> AgentCommPtr;
+  typedef std::shared_ptr<AgentComm> AgentCommPtr;
 }
 
 #endif

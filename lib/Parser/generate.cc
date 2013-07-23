@@ -1,6 +1,6 @@
 #include "parser.ih"
 
-string Parser::generate(boost::shared_ptr<Predicate> const &pred)
+string Parser::generate(std::shared_ptr<Predicate> const &pred)
 {
   stringstream sstrm;
   

@@ -51,7 +51,7 @@ namespace sc
     void connectToSCS();
     
     /// Do a single run
-    void doRun(boost::shared_ptr<RunDef> runDef);
+    void doRun(std::shared_ptr<RunDef> runDef);
     
     /// Spawn an instance of the simulator
     void spawnSim();
@@ -121,7 +121,7 @@ namespace sc
     SCSComm mSCSComm;
     
     /// Currently running run
-    boost::shared_ptr<RunDef> mCurrentRun;
+    std::shared_ptr<RunDef> mCurrentRun;
 
     /// Simulator process
     ProcessPtr mSimProc;

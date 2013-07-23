@@ -21,7 +21,7 @@ bool SCSComm::hasNewRun()
   return nr;
 }
 
-boost::shared_ptr<RunDef> SCSComm::getRun()
+std::shared_ptr<RunDef> SCSComm::getRun()
 {
   return mRunDef;
 }
@@ -68,7 +68,7 @@ void SCSComm::handleReadMsg(const boost::system::error_code& error, size_t bytes
   switch (msgType)
   {
   case MT_RUNDEF:
-    mRunDef = boost::shared_ptr<RunDef>(RunDef::readFromBuf(mInMsgBuf + sizeof(msgType)));
+    mRunDef = std::shared_ptr<RunDef>(RunDef::readFromBuf(mInMsgBuf + sizeof(msgType)));
     mNewRun = true;
     break;
     

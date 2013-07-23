@@ -17,7 +17,7 @@ namespace sc {
 
       for (AST::Node::NodeVector::const_iterator i = pred.d_nodes.begin();
            i != pred.d_nodes.end(); ++i)
-        os << (i != pred.d_nodes.begin() ?" " : "") << *boost::shared_static_cast<Predicate>(*i);
+        os << (i != pred.d_nodes.begin() ?" " : "") << *std::static_pointer_cast<Predicate>(*i);
 
       os << ")";
     

@@ -57,7 +57,7 @@ namespace sc {
 
   class Predicate;
   
-  typedef boost::shared_ptr<Predicate> PredicatePtr;
+  typedef std::shared_ptr<Predicate> PredicatePtr;
   
   /**
    *  The Predicate class...
@@ -206,7 +206,7 @@ namespace sc {
      */
     PredicatePtr push(PredicatePtr msg)
     {
-      return boost::shared_static_cast<Predicate>(addChild(boost::shared_static_cast<AST::Node>(msg)));
+      return std::static_pointer_cast<Predicate>(addChild(std::static_pointer_cast<AST::Node>(msg)));
     }
 
     /**
@@ -284,15 +284,15 @@ namespace sc {
      */
     PredicatePtr getArg(std::string const &key)
     {
-      return boost::shared_static_cast<Predicate>(find(key)->getChild(0));
+      return std::static_pointer_cast<Predicate>(find(key)->getChild(0));
     }
 
     /**
      *  Gets the child with index idx.
      */
-    PredicatePtr get(unsigned idx) { return boost::shared_static_cast<Predicate>(getChild(idx)); }
-    PredicatePtr const get(unsigned idx) const { return boost::shared_static_cast<Predicate>(getChild(idx)); }
-    PredicatePtr const operator[](unsigned idx) { return boost::shared_static_cast<Predicate>(getChild(idx)); }
+    PredicatePtr get(unsigned idx) { return std::static_pointer_cast<Predicate>(getChild(idx)); }
+    PredicatePtr const get(unsigned idx) const { return std::static_pointer_cast<Predicate>(getChild(idx)); }
+    PredicatePtr const operator[](unsigned idx) { return std::static_pointer_cast<Predicate>(getChild(idx)); }
 
     /**
      *  The STL iterators. These return iterators to the children
