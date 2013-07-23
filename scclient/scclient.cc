@@ -13,11 +13,24 @@ string simSpawnCmd;
 string agentsBasedirPath;
 vector<string> simArgs;
 
+void printUsage()
+{
+  cout << "Usage: scclient hostanem port [index]" << endl
+       << "       scclient --print-conf" << endl
+       << endl
+       << "Options:" << endl
+       << "  --print-conf  Output base configuration; redirect to client.cfg and edit to change default configuration" << endl;
+}
+
 void printConf()
 {
-  cout << "simdirpath: \"" << simDirPath << "\";" << endl;
-  cout << "simspawncmd: \"" << simSpawnCmd << "\";" << endl;
-  cout << "agentsbasedirpath: \"" << agentsBasedirPath << "\";" << endl;
+  cout << "# Working directory for running simulator spawn command" << endl;
+  cout << "simdirpath: \"" << simDirPath << "\";" << endl << endl;
+  cout << "# Command used to spawn simulator" << endl;
+  cout << "simspawncmd: \"" << simSpawnCmd << "\";" << endl << endl;
+  cout << "# Base directory of agent binaries. Clients will append team specific paths to this path" << endl;
+  cout << "agentsbasedirpath: \"" << agentsBasedirPath << "\";" << endl << endl;
+  cout << "# List of command arguments given to the simulator" << endl;
   cout << "simargs: [";
   if (simArgs.size() > 0)
   {
@@ -34,15 +47,23 @@ int main(int argc, char const** argv)
   simSpawnCmd = "rcssserver3d";
   agentsBasedirPath = "./";
 
-  if (argc == 2 && string(argv[1]) == "--print-conf")
+  if (argc == 2)
   {
-    printConf();
-    return 0;
+    if (string(argv[1]) == "--help")
+    {
+      printUsage();
+      return 0;
+    }
+    else if (string(argv[1]) == "--print-conf")
+    {
+      printConf();
+      return 0;
+    }
   }
 
   if (argc < 3)
   {
-    cout << "Usage: " << argv[0] << " <hostname> <port> [index]" << endl;
+    printUsage();
     return -1;
   }
 

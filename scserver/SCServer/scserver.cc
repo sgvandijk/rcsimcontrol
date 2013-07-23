@@ -19,6 +19,8 @@ SCServer::SCServer()
 
 void SCServer::run()
 {
+  cout << "Running SCServer!" << endl;
+
   initAcceptors();
   
   startSCCAccept();
@@ -26,7 +28,6 @@ void SCServer::run()
   
   while (true)
   {
-    //cout << "SCServer::run()" << endl;
     mIOService.run_one();
     
     // Check if we have done or ready clients
@@ -119,12 +120,14 @@ void SCServer::initAcceptors()
   mSCCAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mSCCAcceptor.bind(sccendpoint);
   mSCCAcceptor.listen();
+  cout << "Listening for clients on port 15123" << endl;
 
   tcp::endpoint rcmendpoint(tcp::v4(), 3300);
   mRCMAcceptor.open(rcmendpoint.protocol());
   mRCMAcceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
   mRCMAcceptor.bind(rcmendpoint);
   mRCMAcceptor.listen();
+  cout << "Listening for monitors on port 3300" << endl;
 }
 
 void SCServer::startSCCAccept()

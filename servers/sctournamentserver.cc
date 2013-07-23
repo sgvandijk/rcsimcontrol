@@ -68,10 +68,12 @@ bool challengerMode;
 // Called when client signals being ready for a new run
 void handleReady()
 {
+  cout << "SCClient ready..." << endl;
   // Read teams from file
   std::vector<TeamDef> teams;
   try
   {
+    cout << "Reading teams.cfg" << endl;
     Config conf;
     conf.readFile("teams.cfg");
 
@@ -88,6 +90,7 @@ void handleReady()
       else
 	cerr << "Failed reading team " << (i + 1) << endl;
     }
+    cout << "Done!" << endl;
   }
   catch (FileIOException fexc)
   {
@@ -117,7 +120,7 @@ void handleReady()
   // Need more than 1 team for a tournament
   if (teams.size() < 2)
   {
-    cout << "teams.dat contains less than 2 teams!" << endl;
+    cout << "teams.cfg contains less than 2 teams!" << endl;
     scserver.end();
     exit(-1);
   }
@@ -223,6 +226,7 @@ void handleScore(int run, int scoreLeft, int scoreRight)
 // Main
 int main(int argc, char const** argv)
 {
+  cout << " === SC TOURNAMENT SERVER === " << endl;
   scserver.getReadySignal().connect(handleReady);
   scserver.getDoneSignal().connect(handleDone);
   scserver.getScoreSignal().connect(handleScore);
@@ -233,7 +237,10 @@ int main(int argc, char const** argv)
     cout << "Running in Challenger Mode" << endl;
     challengerMode = true;
   }
-
+  else
+  {
+    cout << "Running in Default Mode; add -cm to run in Challenger Mode" << endl;
+  }
   scserver.run();
 
   cout << "Finished run(?)" << endl;
