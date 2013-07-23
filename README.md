@@ -6,5 +6,17 @@ A library and tool set to facilitate mass parallel experiments with the RoboCup 
 dependencies
 ------------
 
-libconfig++
-boost (thread, system, signals) >= 1.47
+* libconfig++
+* boost (thread, system, signals) >= 1.47
+
+building
+--------
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+usage
+-----
+
